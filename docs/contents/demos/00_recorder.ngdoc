@@ -1,0 +1,90 @@
+@ngdoc overview
+@name Media Recorder Video & Audio Extended
+
+@description
+
+## Recorders
+
+Recorder
+
+<doc:example module="exampleApp" height="350">
+    <doc:source>
+
+        <script>
+
+            angular.module('exampleApp', ['ng.cx.recorder'])
+
+            .controller('exampleCtrl', [
+                '$scope', 
+                '$element',
+                '$timeout',
+                function ($scope, $element, $timeout) {
+                    $timeout(function () {
+                        $scope.$broadcast('classroom.tool.recorderVideo.bindElement', $element.find('video'));
+                    });
+                }
+            ]);
+
+        </script>
+
+        <style>
+
+            html, body {
+                height: 100%;
+            }
+
+            .container {
+                position: relative;
+                height: 350px;
+                padding: 10px;
+                overflow: hidden;
+            }
+
+            h3 {
+                margin-top: 0;
+            }
+
+            .video-wrapper {
+                position: absolute;
+                left: 0;
+                top: -2px;
+                width: 100%;
+                height: 360px;
+                z-index: -1;    
+                text-align: center;
+            }
+
+            video {
+                width: 688px;
+            }
+
+            .controls-wrapper {
+                position: absolute;
+                width: 100%;
+                bottom: 10px;
+            }
+
+            a {
+                z-index:100;
+            }
+            
+            .recorder-controls {
+                margin: 0 auto;
+            }
+
+        </style>
+
+        <div data-ng-controller="exampleCtrl" class="container">
+
+            <div class="video-wrapper">
+                <video> </video>
+            </div>
+
+            <div class="controls-wrapper">
+                <div recorder-controls></recorder-controls>
+            </div>
+
+        </div>
+
+    </doc:source>
+</doc:example>

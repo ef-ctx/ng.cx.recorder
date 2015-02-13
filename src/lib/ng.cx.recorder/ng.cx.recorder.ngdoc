@@ -1,0 +1,39 @@
+@ngdoc overview
+@name ng.cx.recorder
+@description
+
+> ###DESCRIPTION###
+
+# Dependencies
+
+- None.
+
+
+# Usage
+
+
+## Configuration
+
+Configure the {@link ng.cx.recorder.myService service} by invoking `configure()` on the {@link ng.cx.recorder.myServiceProvider provider}
+during the config phase of your app.
+
+<pre>
+angular.module('app', ['ng.cx.recorder'])
+.config(['myServiceProvider', function (myServiceProvider) {
+    myServiceProvider.configure(....);
+}])
+</pre>
+
+
+
+## Service
+
+Use the {@link ng.cx.recorder.myService myService} service by injecting it into your controllers or services.
+
+<pre>
+angular.module('app', ['ng.cx.recorder'])
+.service(['yourService', function (myService) {
+    var myValue = myService.someMethod();
+}])
+</pre>
+

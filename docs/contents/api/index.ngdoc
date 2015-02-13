@@ -1,0 +1,15 @@
+@ngdoc overview
+@name API Reference
+@description
+
+# ng.cx.recorder API Reference
+
+> Welcome to the **ng.cx.recorder** API reference.
+
+If you want to know how **ng.cx.recorder** works, checkout the {@link guide/ guide} and the {@link demos/ demos}.
+
+
+## Modules
+
+- **[ng.cx.recorder](#/api/ng.cx.recorder)** - Provides a configurable service that divides numbers by X, as well as a directive and a filter.
+

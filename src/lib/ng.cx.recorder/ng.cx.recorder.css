@@ -1,0 +1,162 @@
+.my-directive {
+  color: #ffcc33;
+}
+.recorder-controls {
+  height: 80px;
+  width: 440px;
+  padding: 20px;
+  margin: 0 auto;
+  background-color: #e9eef4;
+  box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  /* thumb */
+}
+.recorder-controls .button-control {
+  display: table-cell;
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  font-size: 34px;
+  color: #4a4a4a;
+  cursor: pointer;
+}
+.recorder-controls .button-control i {
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+}
+.recorder-controls .button-control i.ef-icon-record,
+.recorder-controls .button-control i.ef-icon-stop {
+  color: #cc4436;
+}
+.recorder-controls .button-control.disabled {
+  cursor: not-allowed;
+}
+.recorder-controls .button-control.disabled i.ef-icon {
+  color: #c8ced5;
+}
+.recorder-controls .time-tracker {
+  display: table-cell;
+  width: 75px;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 10px 0 24px;
+  text-align: left;
+  vertical-align: middle;
+  color: #4a4a4a;
+}
+.recorder-controls .scrub-control {
+  display: table-cell;
+  position: relative;
+  width: 240px;
+  height: 36px;
+  vertical-align: middle;
+}
+.recorder-controls .progress-bar-backdrop {
+  z-index: 1;
+  width: 100%;
+  height: 8px;
+  background-color: #c2c2c2;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.recorder-controls .progress-bar {
+  height: 100%;
+  background-color: #49a2e6;
+}
+.recorder-controls input[type="range"] {
+  position: absolute;
+  top: 18px;
+  left: 0;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  width: 102%;
+  height: 0;
+  margin: 0;
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  outline: none;
+  /* no focus outline */
+  cursor: pointer;
+}
+.recorder-controls input[type="range"]::-moz-range-track {
+  border: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.recorder-controls input[type="range"]::-ms-track {
+  border: inherit;
+  color: transparent;
+  /* don't drawn vertical reference line */
+  background: transparent;
+  cursor: pointer;
+}
+.recorder-controls input[type="range"]::-ms-fill-lower,
+.recorder-controls input[type="range"]::-ms-fill-upper {
+  background: transparent;
+  cursor: pointer;
+}
+.recorder-controls input[type="range"]::-ms-tooltip {
+  display: none;
+  cursor: pointer;
+}
+.recorder-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border: none;
+  border-radius: 50%;
+  background: #4a4a4a;
+  cursor: pointer;
+}
+.recorder-controls input[type="range"]::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border: none;
+  border-radius: 50%;
+  background: #4a4a4a;
+  cursor: pointer;
+}
+.recorder-controls input[type="range"]::-ms-thumb {
+  width: 15px;
+  height: 15px;
+  border: 0;
+  border-radius: 50%;
+  background: #4a4a4a;
+  cursor: pointer;
+}
+.recorder-controls .button-remove {
+  display: table-cell;
+  position: absolute;
+  top: 23px;
+  right: 34px;
+  width: 36px;
+  height: 36px;
+  padding-left: 27px;
+  vertical-align: middle;
+  font-size: 22px;
+  color: #8b98a8;
+  cursor: pointer;
+}
+.recorder-controls.minified {
+  bottom: 0;
+  left: 0;
+  width: 86px;
+  height: 86px;
+  padding: 25px;
+}
+.recorder-controls.minified .button-remove {
+  top: initial;
+  right: 6px;
+  bottom: 10px;
+  width: 22px;
+  height: 22px;
+  padding-left: 0;
+}
+.recorder-controls.minified .scrub-control,
+.recorder-controls.minified .time-tracker {
+  display: none;
+}

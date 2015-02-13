@@ -1,0 +1,66 @@
+@ngdoc overview
+@name Guide
+@description
+
+# ng.cx.recorder
+
+[![Build Status: Linux](http://img.shields.io/travis/ef-ctx/ng.cx.recorder/master.svg?style=flat-square)](https://travis-ci.org/ef-ctx/ng.cx.recorder)
+[![Bower version](http://img.shields.io/bower/v/ng.cx.recorder.svg?style=flat-square)](git@github.com:ef-ctx/ng.cx.recorder.git)
+
+> ###DESCRIPTION###
+
+## Getting Started
+
+Add **ng.cx.recorder** to you project.
+
+Via bower:
+
+```
+$ bower install --save ng.cx.recorder
+```
+
+Via npm:
+
+```
+$ npm install --save ng.cx.recorder
+```
+
+
+Include the following JS/CSS/assets in your build:
+-
+-
+-
+
+
+## Contributing
+
+We'd love for you to contribute to our source code and to make it even better than it is today!
+
+Make sure you read the [Contributing Guide](git@github.com:ef-ctx/ng.cx.recorder.git/blob/master/CONTRIBUTING.md) first.
+
+
+## Developing
+
+Clone this repository, install the dependencies and simply run `grunt develop`.
+
+```
+$ npm install -g grunt-cli bower
+$ npm install
+$ bower install
+$ ./bootstrap.sh
+$ grunt develop
+```
+
+At this point, the source examples included were built into the `build/` directory and a simple webserver is launched so
+that you can browse the documentation, the examples and the code coverage.
+
+```
+...
+Running "serve:build" (serve) task
+Started connect web server on http://0.0.0.0:8000
+
+Running "watch" task
+Waiting...
+```
+
+If you point your browser to `http://0.0.0.0:8000/docs` you should be looking at this exact documentation.
