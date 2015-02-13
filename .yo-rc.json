@@ -1,0 +1,28 @@
+{
+  "generator-nglib": {
+    "github.username": "ef-ctx",
+    "license.name": "MIT",
+    "license.url": "https://raw.githubusercontent.com/EFEducationFirstMobile/oss/master/LICENSE",
+    "author.name": "EF CTX",
+    "author.email": "ctx@ef.com",
+    "author.url": "http://ef.com",
+    "has.sass": false,
+    "use.travis": true,
+    "project.name": "ng.cx.recorder",
+    "project.description": "###DESCRIPTION###",
+    "bower.id": "ng.cx.recorder",
+    "npm.id": "ng.cx.recorder",
+    "angular.module": "ng.cx.recorder",
+    "has.tpl": true,
+    "has.css": false,
+    "has.less": true,
+    "has.docs": true,
+    "use.git": true,
+    "github.reponame": "ng.cx.recorder",
+    "homepage.url": "https://github.com/ef-ctx/ng.cx.recorder",
+    "docs.url": "https://github.com/ef-ctx/ng.cx.recorder",
+    "bugs.url": "https://github.com/ef-ctx/ng.cx.recorder/issues",
+    "travis.id": "ef-ctx/ng.cx.recorder",
+    "repo.url": "git@github.com:ef-ctx/ng.cx.recorder.git"
+  }
+}
