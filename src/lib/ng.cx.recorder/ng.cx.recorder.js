@@ -396,7 +396,7 @@
                         return _element.muted || false;
                     },
                     set: function (value) {
-                        _element.muted = true;
+                        _element.muted = value;
                     }
                 });
 
@@ -669,7 +669,7 @@
                     },
                     set: function (value) {
                         for (var ix = 0; ix < mediaObjects.length; ix++) {
-                            mediaObjects[ix].muted = true;
+                            mediaObjects[ix].muted = value;
                         }
                     }
                 });
