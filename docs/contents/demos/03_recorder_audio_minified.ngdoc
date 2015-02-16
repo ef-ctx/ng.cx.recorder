@@ -1,0 +1,106 @@
+@ngdoc overview
+@name Media Recorder Audio Minified
+
+@description
+
+## Recorders
+
+Recorder
+
+<doc:example module="exampleApp" height="350">
+    <doc:source>
+
+        <script>
+
+            angular.module('exampleApp', ['ng.cx.recorder'])
+
+            .controller('exampleCtrl', [
+                '$scope', 
+                '$element',
+                '$timeout',
+                function ($scope, $element, $timeout) {
+                    $scope.minified = true;
+                }
+            ]);
+
+        </script>
+
+        <style>
+
+            html, body {
+                height: 100%;
+            }
+
+            .container {
+                position: relative;
+                height: 350px;
+                padding: 10px;
+                overflow: hidden;
+            }
+
+            h3 {
+                margin-top: 0;
+            }
+
+            .video-wrapper {
+                position: absolute;
+                left: 0;
+                top: -2px;
+                width: 100%;
+                height: 360px;
+                z-index: -1;    
+                text-align: center;
+            }
+
+            video {
+                width: 688px;
+            }
+
+            .controls-wrapper {
+                position: absolute;
+                width: 100%;
+                bottom: 10px;
+            }
+
+            a {
+                z-index:100;
+            }
+            
+            .recorder-controls {
+                margin: 0 auto;
+            }
+
+            .interaction span {
+                display: block;
+                width:  35px;
+                height: 35px;
+                padding-top: 4px;
+                border: 2px solid #ccc;
+                border-radius: 5px;
+                text-align: center;
+                font-size: 22px;
+                background-color: rgba(230,230,230,0.9);
+                color: #666;
+            }
+
+
+        </style>
+
+        <div data-ng-controller="exampleCtrl" class="container">
+
+            <div class="video-wrapper">
+                <video> </video>
+            </div>
+
+            <div class="interaction">
+                <span class="fa" data-ng-class="{'fa-volume-up': !muted, 'fa-volume-off': muted }" data-ng-click="muted=!muted"></span>
+            </div>
+
+            <div class="controls-wrapper">
+                <div recorder-controls data-minified="minified" data-muted="muted"></recorder-controls>
+            </div>
+
+        </div>
+
+    </doc:source>
+</doc:example>
