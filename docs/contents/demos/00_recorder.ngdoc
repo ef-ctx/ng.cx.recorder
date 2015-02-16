@@ -72,6 +72,19 @@ Recorder
                 margin: 0 auto;
             }
 
+            .interaction span {
+                display: block;
+                width:  35px;
+                height: 35px;
+                padding-top: 4px;
+                border: 2px solid #ccc;
+                border-radius: 5px;
+                text-align: center;
+                font-size: 22px;
+                background-color: rgba(230,230,230,0.9);
+                color: #666;
+            }
+
         </style>
 
         <div data-ng-controller="exampleCtrl" class="container">
@@ -80,8 +93,13 @@ Recorder
                 <video> </video>
             </div>
 
+            <div class="interaction">
+                <span class="fa" data-ng-class="{'fa-volume-up': !muted, 'fa-volume-off': muted }" data-ng-click="muted=!muted"></span>
+            </div>
+
+
             <div class="controls-wrapper">
-                <div recorder-controls></recorder-controls>
+                <div recorder-controls data-muted="muted"></recorder-controls>
             </div>
 
         </div>
