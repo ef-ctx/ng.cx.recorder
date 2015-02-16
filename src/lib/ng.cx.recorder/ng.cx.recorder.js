@@ -701,11 +701,9 @@
                     videoUrl: '=',
                     audioUrl: '=',
                     minified: '=',
-                    mediaType: '@',
-                    videoRecordedHandler: '=',
-                    videoDeletedHandler: '=',
                     registerControlsApi: '=',
-                    maxRecordingTime: '='
+                    maxRecordingTime: '=',
+                    muted: '=',
                 },
                 link: function ($scope, $element) {
 
