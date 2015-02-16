@@ -1,8 +1,7 @@
-.my-directive {
-  color: #ffcc33;
-}
 .recorder-controls {
-  height: 80px;
+  position: relative;
+  margin-top: 900px;
+  height: 78px;
   width: 440px;
   padding: 20px;
   margin: 0 auto;
@@ -26,8 +25,7 @@
   height: 36px;
   line-height: 36px;
 }
-.recorder-controls .button-control i.ef-icon-record,
-.recorder-controls .button-control i.ef-icon-stop {
+.recorder-controls .button-control i.record {
   color: #cc4436;
 }
 .recorder-controls .button-control.disabled {
@@ -129,7 +127,7 @@
   cursor: pointer;
 }
 .recorder-controls .button-remove {
-  display: table-cell;
+  display: block;
   position: absolute;
   top: 23px;
   right: 34px;
@@ -159,4 +157,13 @@
 .recorder-controls.minified .scrub-control,
 .recorder-controls.minified .time-tracker {
   display: none;
+}
+.debug-container {
+  position: absolute;
+  top: -100px;
+  left: 200px;
+  width: 300px;
+  height: 50px;
+  font-size: 10px;
+  background-color: rgba(255, 255, 255, 0.5);
 }

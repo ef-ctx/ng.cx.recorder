@@ -53,6 +53,7 @@
     };
 
     var MEDIA_STATE = {
+        disabled: 'disabled',
         capturing: 'capturing',
         recording: 'recording',
         playing: 'playing',
@@ -157,9 +158,10 @@
      *      Extend Media Objects adding record and capture handling
      **/
     module.factory('SingleMedia', [
+        '$rootScope',
         '$q',
         'userMedia',
-        function singleMediaFactory($q, userMedia) {
+        function singleMediaFactory($rootScope, $q, userMedia) {
 
             var SingleMedia = function (element, sourceUrl) {
 
@@ -171,7 +173,8 @@
                 var _element;
                 var _blobUrl;
                 var _recorder;
-                var _state = MEDIA_STATE.stopped;
+                var _capturingEnabled = false;
+                var _state = MEDIA_STATE.disabled;
 
                 /**
                  * @ngdoc function
@@ -189,14 +192,22 @@
                     var dfd = $q.defer();
 
                     if (_streamUrl) {
+                        _element.src = _streamUrl;
+                        _element.volume = 0;
+                        _element.play();
                         dfd.resolve(_streamUrl);
+                        _state = MEDIA_STATE.capturing;
                     } else {
                         userMedia.getMedia(_type).then(function (stream) {
                             dfd.resolve(stream);
+                            _stream = stream.source;
+                            _streamUrl = stream.url;
+                            _element.src = _streamUrl;
+                            _element.play();
+                            _capturingEnabled = true;
+                            _state = MEDIA_STATE.capturing;
                         });
                     }
-
-                    _state = MEDIA_STATE.capturing;
 
                     return dfd.promise;
                 }
@@ -239,10 +250,8 @@
                     _recorder.stopRecording(function (url) {
                         _blobUrl = url;
                         _element.src = url;
-                        play();
                     });
 
-                    _state = MEDIA_STATE.stopped;
                 }
 
                 /**
@@ -281,12 +290,32 @@
                  * Stops recording if it is recording or pause and move to second 0 if it is playing
                  **/
                 function stop() {
+
                     if (_state === MEDIA_STATE.recording) {
                         stopRecording();
-                    } else {
-                        pause();
                     }
+
                     _element.currentTime = 0;
+                    _element.pause();
+
+                    _state = MEDIA_STATE.stopped;
+                }
+
+                function removeRecording() {
+                    capture();
+                }
+
+                function handleMediaTimeUpdate() {
+                    $rootScope.$evalAsync();
+                }
+
+                function handleLoadedData() {
+                    $rootScope.$evalAsync();
+                }
+
+                function mediaEnededHandler() {
+                    stop();
+                    $rootScope.$evalAsync();
                 }
 
                 function init() {
@@ -298,28 +327,26 @@
                         _constraints = MEDIA_CONSTRAINTS[_type];
 
                         _element = element;
-                        _element.autoplay = true;
+                        _element.autoplay = false;
                         _element.volume = 0;
+
+                        _element.addEventListener('timeupdate', handleMediaTimeUpdate);
+                        _element.addEventListener('ended', mediaEnededHandler);
+                        _element.addEventListener('loadeddata', handleLoadedData);
 
                         if (sourceUrl) {
                             _element.src = sourceUrl;
                         } else {
                             capture().then(function (stream) {
-                                _stream = stream.source;
-                                _streamUrl = stream.url;
-                                _element.src = _streamUrl;
                                 _recorder = new RecordRTC(stream.source, _constraints.record);
                             });
                         }
 
                     } else {
                         throw new Error('SingleMedia factory Error: type : ' + _type + ' is not supported as media element');
-
                     }
 
                 }
-
-                init();
 
                 // --------------------- METHODS
 
@@ -329,12 +356,52 @@
                 this.record = record;
                 this.capture = capture;
                 this.stopStream = stopStream;
+                this.removeRecording = removeRecording;
 
                 Object.defineProperty(this, 'hasRecording', {
                     get: function () {
                         return (!!_blobUrl);
                     }
                 });
+
+                Object.defineProperty(this, 'isCapturingEnabled', {
+                    get: function () {
+                        return _capturingEnabled;
+                    }
+                });
+
+                Object.defineProperty(this, 'state', {
+                    get: function () {
+                        return _state;
+                    }
+                });
+
+                Object.defineProperty(this, 'currentTime', {
+                    get: function () {
+                        return _element.currentTime;
+                    },
+                    set: function (time) {
+                        _element.currentTime = time;
+                    }
+                });
+
+                Object.defineProperty(this, 'duration', {
+                    get: function () {
+                        return _element.duration;
+                    }
+                });
+
+                Object.defineProperty(this, 'muted', {
+                    get: function () {
+                        return _element.muted || false;
+                    },
+                    set: function (value) {
+                        _element.muted = true;
+                    }
+                });
+
+                init();
+
             };
 
             return SingleMedia;
@@ -371,52 +438,6 @@
 
                 var mediaObjects = [];
 
-                var time = {
-                    duration: 0,
-                    track: 0
-                };
-
-                var interval;
-                var state = MEDIA_STATE.stopped;
-
-                function trackTime() {
-                    var current;
-
-                    switch (state) {
-
-                    case MEDIA_STATE.recording:
-                        time.duration = 0;
-                        interval = $interval(function () {
-                            time.duration++;
-                            console.log('RECORDING : ', time.duration);
-                        }, 100);
-                        console.log('tracking time RECORDING');
-
-                        break;
-
-                    case MEDIA_STATE.stopped:
-                        $interval.cancel(interval);
-                        time.track = 0;
-                        console.log('tracking time STOPPED');
-                        break;
-
-                    case MEDIA_STATE.paused:
-                        $interval.cancel(interval);
-                        console.log('tracking time PAUSED');
-                        break;
-
-                    case MEDIA_STATE.playing:
-                        interval = $interval(function () {
-                            time.track++;
-                            console.log('PLAYING: ', time.duration);
-                        }, 100);
-                        console.log('tracking time PLAYING');
-
-                        break;
-                    }
-
-                }
-
                 /**
                  * @ngdoc function
                  * @name addMediaElement
@@ -447,7 +468,6 @@
                     mediaObjects.forEach(function (media) {
                         media.capture();
                     });
-                    state = MEDIA_STATE.capturing;
                 }
 
                 /**
@@ -462,7 +482,6 @@
                     mediaObjects.forEach(function (media) {
                         media.stopStream();
                     });
-                    state = MEDIA_STATE.stopped;
                 }
 
                 /**
@@ -473,14 +492,24 @@
                  * @description
                  * Start recording
                  **/
+                var interval;
+                var recordedTime;
+                var maxRecordingSeconds;
+
                 function record() {
                     mediaObjects.forEach(function (media) {
                         media.record();
                     });
 
-                    state = MEDIA_STATE.recording;
+                    recordedTime = 0;
+                    interval = $interval(function () {
+                        if (recordedTime === maxRecordingSeconds) {
+                            stop();
+                        } else {
+                            recordedTime++;
+                        }
 
-                    trackTime();
+                    }, 1000);
                 }
 
                 /**
@@ -496,13 +525,9 @@
                         media.stop();
                     });
 
-                    if (state === MEDIA_STATE.recording) {
-                        state = MEDIA_STATE.paused;
-                    } else {
-                        state = MEDIA_STATE.stopped;
+                    if (interval) {
+                        $interval.cancel(interval);
                     }
-
-                    trackTime();
                 }
 
                 /**
@@ -517,10 +542,6 @@
                     mediaObjects.forEach(function (media) {
                         media.play();
                     });
-
-                    state = MEDIA_STATE.playing;
-
-                    trackTime();
                 }
 
                 /**
@@ -535,35 +556,121 @@
                     mediaObjects.forEach(function (media) {
                         media.pause();
                     });
+                }
 
-                    state = MEDIA_STATE.paused;
+                function removeRecording() {
+                    mediaObjects.forEach(function (media) {
+                        media.removeRecording();
+                    });
+                }
 
-                    trackTime();
+                function getState() {
+
+                    if (mediaObjects && mediaObjects[0]) {
+                        return mediaObjects[0].state;
+                    }
+                    return undefined;
+
+                }
+
+                /**
+                 *  stop --> record --> paused --> playing
+                 *                        ^           |
+                 *                        |           v
+                 *                         -----------
+                 */
+                function goToNexStep() {
+                    var state = getState();
+                    switch (state) {
+                    case MEDIA_STATE.capturing: // stopped -> record;
+                        record();
+                        break;
+                    case MEDIA_STATE.recording: // record -> stop;
+                        stop();
+                        break;
+                    case MEDIA_STATE.paused: // stop -> play;
+                        play();
+                        break;
+                    case MEDIA_STATE.stopped: // stop -> play;
+                        play();
+                        break;
+                    case MEDIA_STATE.playing: // play -> pause;
+                        pause();
+                        break;
+                    }
                 }
 
                 this.addMediaElement = addMediaElement;
-                this.capture = capture;
                 this.stopStream = stopStream;
-                this.record = record;
-                this.play = play;
-                this.pause = pause;
+                this.goToNexStep = goToNexStep;
+                this.removeRecording = removeRecording;
                 this.stop = stop;
+                this.pause = pause;
+                this.play = play;
 
                 Object.defineProperty(this, 'state', {
-                    get: function () {
-                        return state;
-                    }
+                    get: getState
                 });
 
                 Object.defineProperty(this, 'duration', {
                     get: function () {
-                        return time.duration;
+                        var time = 0;
+
+                        if (getState() === MEDIA_STATE.recording) {
+                            time = recordedTime;
+                        } else if (mediaObjects[0]) {
+                            time = mediaObjects[0].duration;
+                        }
+
+                        return time;
                     }
                 });
 
                 Object.defineProperty(this, 'currentTime', {
                     get: function () {
-                        return time.track;
+                        var time = 0;
+                        if (getState() === MEDIA_STATE.recording) {
+                            time = recordedTime;
+                        } else if (mediaObjects[0]) {
+                            time = mediaObjects[0].currentTime;
+                        }
+                        return time;
+                    },
+                    set: function (value) {
+                        for (var ix = 0; ix < mediaObjects.length; ix++) {
+                            mediaObjects[ix].currentTime = value;
+                        }
+                    }
+                });
+
+                Object.defineProperty(this, 'isCapturingEnabled', {
+                    get: function () {
+                        for (var ix = 0; ix < mediaObjects.length; ix++) {
+                            if (!mediaObjects[ix].isCapturingEnabled) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                });
+
+                Object.defineProperty(this, 'maxRecordingSeconds', {
+                    get: function () {
+                        return maxRecordingSeconds;
+                    },
+                    set: function (value) {
+                        maxRecordingSeconds = value;
+                    }
+                });
+
+                Object.defineProperty(this, 'muted', {
+                    get: function () {
+                        return (mediaObjects[0]) ? mediaObjects[0] : false;
+                    },
+                    set: function (value) {
+                        for (var ix = 0; ix < mediaObjects.length; ix++) {
+                            mediaObjects[ix].muted = true;
+                        }
                     }
                 });
             };
@@ -597,220 +704,70 @@
                     mediaType: '@',
                     videoRecordedHandler: '=',
                     videoDeletedHandler: '=',
-                    registerControlsApi: '='
+                    registerControlsApi: '=',
+                    maxRecordingTime: '='
                 },
                 link: function ($scope, $element) {
 
-                    /*
-                                    var media = {};
-
-                                    var $audio, audio;
-                                    var $video, video;
-                                    var recordedSeconds;
-                                    var trackProgress;
-                                    var maxRecordingTimeAllowedms;
-                                    var startRecordingTime;
-                    */
-                    // ---------------------------------------------------------------------------------------------------------------------------------------- MEDIA HANDLING
-
-                    // ------------------------------------------------------------------------------------- HELPERS
-                    /*
-                    function setMediaCurrentTime(time) {
-                        for (var ix in media) {
-                            media[ix].el.currentTime = time;
-                        }
-
-                        updateProgress(time, $scope.mediaDuration);
-
-                        if ($scope.currentState === MEDIA_STATE.playing) {
-                            play();
-                        }
-                    }
-
-                    function updateProgress(current, total) {
-                        var percentage = Math.floor((100 / total) * current);
-                        $scope.$evalAsync(function() {
-                            $scope.playbackProgress = current;
-                            $scope.playbackProgressPercentage = isNaN(percentage) ? 0 : percentage;
-                            $scope.playbackProgressDate.setSeconds(current);
-                        });
-                    }
-                    */
-                    // ------------------------------------------------------------------------------------- HANDLING MEDIA EVENTS
-
                     /**
-                     * Handles playing event from the video element
-                    function handleMediaTimeUpdate() {
-                        if (trackProgress) {
-                            // while recording the progress bar should be the percentage beween
-                            // the time recorded and the maximum time allowed
-                            if ($scope.currentState === MEDIA_STATE.recording) {
+                     * Initialization of the directive
+                     **/
+                    function init() {
+                        $scope.mediaHandler = new MediaHandler();
+                        $scope.mediaHandler.maxRecordingSeconds = $scope.maxDuration;
+                        $scope.mediaHandler.addMediaElement(angular.element('<audio>')[0]);
 
-                                // the recorded time
-                                // @TODO: we can't track time from an specific component as far as we don't know which component will be instantiated.
-                                // We should track as the audio Reconder
-                                recordedSeconds = Math.floor(media.video.el.currentTime - startRecordingTime);
-
-                                if (recordedSeconds >= maxRecordingTimeAllowedms) {
-                                    stopRecording();
-                                    handleMediaEnd();
-                                } else {
-                                    updateProgress(recordedSeconds, maxRecordingTimeAllowedms);
-                                }
-
-                            } else if ($scope.currentState === MEDIA_STATE.playing) {
-                                updateProgress(Math.floor(media.video.el.currentTime), $scope.mediaDuration);
-                            }
-                        }
-                    }
-
-                    /**
-                     * Handles the media ending.
-                    function handleMediaEnd() {
-                        pause();
-                        setMediaCurrentTime(0);
-                        $scope.currentState = MEDIA_STATE.paused;
-                    }
-
-                    function handleMediaError() {
-                        $scope.$evalAsync(function() {
-                            setMediaCurrentTime(0);
-                        });
-                    }
-
-                    function handleLoadedData() {
-                        $scope.mediaDuration = Math.floor(media.video.el.duration);
-                    }
-
-                    // ------------------------------------------------------------------------------------- PAUSE / STOP
-
-                    function pause() {
-
-                        for (var ix in media) {
-                            media[ix].el.pause();
-                            media[ix].el.volume = 0;
-                        }
-
-                        // STOP PLAYING
-                        $scope.currentState = MEDIA_STATE.paused;
-                    }
-
-
-                    // ------------------------------------------------------------------------------------- RECORDING
-
-                    /**
-                     * records the audio and video streams and call handleRecording to manage the data to display
-                    function record() {
-                        mediaHandler.startRecording();
-                        // @TODO: we can't track time from an specific component as far as we don't know which component will be instantiated.
-                        // We should track as the audio Reconder
-                        startRecordingTime = media.video.el.currentTime;
-                        $scope.currentState = MEDIA_STATE.recording;
-                    }
-                    */
-
-                    /*function stopRecording() {
-                        mediaHandler.stopRecording().then(function(mediaHash) {
-
-                            for (var ix in media) {
-                                if (mediaHash.hasOwnProperty(ix)) {
-                                    media[ix].el.src = mediaHash[ix].blobUrl;
-                                    media[ix].el.pause();
-                                }
-                            }
-
-                            $scope.$evalAsync(function() {
-                                $scope.mediaDuration = recordedSeconds;
-                                $scope.playbackProgressDate.setSeconds(recordedSeconds);
-                            });
-
-                            if ($scope.mediaRecordedHandler) {
-                                $scope.mediaRecordedHandler(mediaHash);
-                            }
-
-                        });
-
-                        setMediaCurrentTime(0);
-
-                        // STOP PLAYING
-                        $scope.currentState = MEDIA_STATE.paused;
-                    }*/
-
-                    // ------------------------------------------------------------------------------------- CAPTURING
-
-                    /**
-                     * captures the stream provided by the media handler wich takes the stream from the microphone or the camera of the user
-                    function capture(mediaObj) {
-
-                        if (mediaObj.streamUrl) {
-                            mediaObj.el.src = mediaObj.streamUrl;
-                        } else {
-                            mediaHandler.capture(mediaObj.type).then(function(url) {
-                                mediaObj.el.src = url;
-                                mediaObj.streamUrl = url;
-                                mediaObj.captureAllowed = true;
+                        if ($scope.registerControlsApi) {
+                            $scope.registerControlsApi({
+                                record: $scope.mediaHandler.record,
+                                play: $scope.mediaHandler.play,
+                                stop: $scope.mediaHandler.stop
                             });
                         }
                     }
 
-                    // ------------------------------------------------------------------------------------- MUTE / UNMUTE
+                    $scope.$watch('muted', function (value) {
+                        $scope.mediaHandler.muted = value;
+                    });
 
-                    function mute() {
-                        if (media.hasOwnProperty(audio)) {
-                            media.audio.el.muted = true;
-                        }
-                    }
-
-                    function unmute() {
-                        if (media.hasOwnProperty(audio)) {
-                            media.audio.el.muted = false;
-                        }
-                    }
-
-                    **/
-                    // ----------------------------------------------------------------------------------------------------------------------------------------- STATE HANDLING
+                    /**
+                     * video component initializes when a message with the element is broadcasted from a parent scope
+                     **/
+                    $scope.$on('classroom.tool.recorderVideo.bindElement', function (evt, $videoElement) {
+                        $scope.mediaHandler.addMediaElement($videoElement[0], $scope.videoUrl);
+                    });
 
                     $scope.MEDIA_STATE = MEDIA_STATE;
+                    $scope.maxDuration = $scope.maxRecordingTime || 120;
 
-                    $scope.captureAllowed = {
-                        video: true,
-                        audio: true
+                    $scope.rangeHandlers = {
+                        mouseDown: function () {
+                            $scope.time.trackingEnabled = false;
+                            $scope.mediaHandler.pause();
+                        },
+                        mouseUp: function () {
+                            $scope.time.trackingEnabled = true;
+                        },
+                        change: function () {
+                            $scope.mediaHandler.currentTime = $scope.time.unformatted;
+                        }
                     };
 
-                    var steps = {};
-
-                    $scope.changeState = function () {
-                        steps[$scope.mediaHandler.state]();
+                    $scope.time = {
+                        trackingEnabled: true,
+                        unformatted: 0,
+                        formatted: new Date(null)
                     };
 
-                    $scope.seek = function () {
-                        /*trackProgress = true;
-                        setMediaCurrentTime($scope.playbackProgress);*/
-                    };
+                    $scope.$watch('mediaHandler.currentTime', function (value) {
 
-                    $scope.pauseProgressTracking = function () {
-                        //trackProgress = false;
-                    };
+                        if ($scope.time.trackingEnabled) {
+                            $scope.time.unformatted = value;
+                        }
 
-                    $scope.rangeChangeHandler = function () {
-                        //updateProgress($scope.playbackProgress, $scope.mediaDuration);
-                    };
+                        $scope.time.formatted.setSeconds(value);
 
-                    /**
-                     * Removes the recorded video and stops playing, returning to capture mode
-                     */
-                    $scope.removeRecording = function () {
-                        /*dialog.confirm('Remove video', 'This will remove the recorded video, do you want to remove it?', 'Remove').then(function() {
-
-                            capture('video');
-                            capture('audio');
-
-                            if ($scope.videoDeletedHandler) {
-                                $scope.videoDeletedHandler();
-                            }
-
-                        });*/
-                    };
+                    });
 
                     /**
                      * when the tool is removed it stops capturing video and audio
@@ -818,55 +775,6 @@
                     $scope.$on('$destroy', function () {
                         $scope.mediaHandler.stop();
                         $scope.mediaHandler.stopStream();
-                    });
-                    // ---------------------------------------------------------------------------------------------------------------------------------------- INITIALIZATION
-
-                    /**
-                     * Initialization of the directive
-                     **/
-                    function init() {
-                        $scope.mediaHandler = new MediaHandler();
-                        $scope.mediaHandler.addMediaElement(angular.element('<audio>')[0]);
-
-                        /**
-                         *  stop --> record --> paused --> playing
-                         *                        ^           |
-                         *                        |           v
-                         *                         -----------
-                         */
-                        // stopped -> record;
-                        steps[MEDIA_STATE.stopped] = $scope.mediaHandler.record;
-                        // record -> stop;
-                        steps[MEDIA_STATE.recording] = $scope.mediaHandler.stop;
-                        // stop -> play;
-                        steps[MEDIA_STATE.paused] = $scope.mediaHandler.play;
-                        // play -> pause;
-                        steps[MEDIA_STATE.playing] = $scope.mediaHandler.pause;
-
-                        /**
-                         *  EXPOSE THE API
-                         */
-                        if ($scope.registerControlsApi) {
-                            /*$scope.registerControlsApi({
-                                record: record,
-                                play: play,
-                                stop: stop,
-                                mute: mute,
-                                unmute: unmute
-                            });*/
-                        }
-
-                    }
-
-                    $scope.maxDuration = 20;
-
-                    /**
-                     * video component initializes when a message with the element is broadcasted from a parent scope
-                     **/
-                    $scope.$on('classroom.tool.recorderVideo.bindElement', function (evt, $videoElement) {
-                        $scope.mediaHandler.addMediaElement($videoElement[0], $scope.videoUrl);
-                        console.log('test', $videoElement);
-
                     });
 
                     init();

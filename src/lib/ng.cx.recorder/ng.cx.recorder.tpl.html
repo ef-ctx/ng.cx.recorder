@@ -1,36 +1,46 @@
 <div class="recorder-controls {{ mediaHandler.state }}" data-ng-class="{'minified': minified}">
+    <div class="debug-container">
+        <div>
+            {{mediaHandler.state}}
+        </div>
+    </div>
 
-    <div class="button button-control" data-ng-click="changeState()" >
-        <i class="fa" data-ng-class="
-            {'fa-stop': (mediaHadler.state === MEDIA_STATE.stopped),
-             'fa-play': (mediaHadler.state === MEDIA_STATE.paused),
-             'fa-pause': (mediaHadler.state === MEDIA_STATE.playing),
-             'fa-stop': (mediaHadler.state === MEDIA_STATE.recording)
-            }"
-        ></i>
+
+    <div class="button button-control" data-ng-click="mediaHandler.goToNexStep()">
+        <i class="fa" data-ng-class="{
+            'fa-circle': (!mediaHandler.isCapturingEnabled),
+            'fa-circle record': (mediaHandler.state === MEDIA_STATE.capturing),
+            'fa-play': ( (mediaHandler.state === MEDIA_STATE.paused) || (mediaHandler.state === MEDIA_STATE.stopped) ),
+            'fa-pause': (mediaHandler.state === MEDIA_STATE.playing),
+            'fa-stop record': (mediaHandler.state === MEDIA_STATE.recording)
+            }">
+        </i>
     </div>
 
     <div class="time-tracker">
-        {{playbackProgressDate | date : 'mm:ss'}}
+        {{time.formatted | date : 'mm:ss'}}
     </div>
 
     <div class="scrub-control">
         <div class="progress-bar-backdrop">
-            <div class="progress-bar" style="width: {{playbackProgressPercentage}}%"></div>
+            <div class="progress-bar" style="width: {{ (mediaHandler.state === MEDIA_STATE.recording)? (mediaHandler.duration * 100) / maxDuration : 100}}%"></div>
         </div>
         <input type="range"
             min="0"
-            max="{{mediaDuration}}"
-            step="1"
-            data-ng-model="playbackProgress"
-            data-ng-mousedown="pauseProgressTracking()"
-            data-ng-change="rangeChangeHandler()"
-            data-ng-mouseup="seek()"
-            data-ng-show="((mediaHadler.state === MEDIA_STATE.playing) || (mediaHadler.state === MEDIA_STATE.paused))"/>
+            max="{{mediaHandler.duration}}"
+            step="0.1"
+            data-ng-model="time.unformatted"
+            data-ng-mousedown="rangeHandlers.mouseDown()"
+            data-ng-mouseup="rangeHandlers.mouseUp()"
+            data-ng-change="rangeHandlers.change()"
+            data-ng-show="((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))"/>
     </div>
 
-    <div class="button button-remove" data-ng-click="removeRecording()" data-ng-show="((mediaHadler.state === MEDIA_STATE.playing) || (mediaHadler.state === MEDIA_STATE.paused))">
-        <i class="ef-icon ef-icon-trash"></i>
+    <div class="button button-remove"
+        data-ng-click="mediaHandler.removeRecording()"
+        data-ng-show="((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))">
+        <i class="fa fa-trash"></i>
     </div>
+
 
 </div>
