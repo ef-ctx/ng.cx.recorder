@@ -10,23 +10,6 @@ Recorder
 <doc:example module="exampleApp" height="350">
     <doc:source>
 
-        <script>
-
-            angular.module('exampleApp', ['ng.cx.recorder'])
-
-            .controller('exampleCtrl', [
-                '$scope', 
-                '$element',
-                '$timeout',
-                function ($scope, $element, $timeout) {
-                    $timeout(function () {
-                        $scope.$broadcast('classroom.tool.recorderVideo.bindElement', $element.find('video'));
-                    });
-                    $scope.minified = true;
-                }
-            ]);
-
-        </script>
 
         <style>
 
@@ -88,10 +71,26 @@ Recorder
 
         </style>
 
+        <script>
+
+            angular.module('exampleApp', ['ng.cx.recorder'])
+
+            .controller('exampleCtrl', [
+                '$scope', 
+                '$element',
+                '$timeout',
+                function ($scope, $element, $timeout) {
+                    $scope.video1 = $document[0].getElementById('v1');
+                    $scope.minified = true;
+                }
+            ]);
+
+        </script>
+
         <div data-ng-controller="exampleCtrl" class="container">
 
             <div class="video-wrapper">
-                <video> </video>
+                <video id="v1"> </video>
             </div>
 
             <div class="interaction">
@@ -99,7 +98,7 @@ Recorder
             </div>
 
             <div class="controls-wrapper">
-                <div recorder-controls data-minified="minified" data-muted="muted"></recorder-controls>
+                <div recorder-controls data-minified="minified" data-muted="muted" data-include-audio="true" data-video-element="video1"></recorder-controls>
             </div>
 
         </div>

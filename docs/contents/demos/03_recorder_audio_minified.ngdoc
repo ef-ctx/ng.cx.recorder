@@ -10,20 +10,6 @@ Recorder
 <doc:example module="exampleApp" height="350">
     <doc:source>
 
-        <script>
-
-            angular.module('exampleApp', ['ng.cx.recorder'])
-
-            .controller('exampleCtrl', [
-                '$scope', 
-                '$element',
-                '$timeout',
-                function ($scope, $element, $timeout) {
-                    $scope.minified = true;
-                }
-            ]);
-
-        </script>
 
         <style>
 
@@ -86,18 +72,29 @@ Recorder
 
         </style>
 
-        <div data-ng-controller="exampleCtrl" class="container">
+        <script>
 
-            <div class="video-wrapper">
-                <video> </video>
-            </div>
+            angular.module('exampleApp', ['ng.cx.recorder'])
+
+            .controller('exampleCtrl', [
+                '$scope', 
+                '$element',
+                '$timeout',
+                function ($scope, $element, $timeout) {
+                    $scope.minified = true;
+                }
+            ]);
+
+        </script>
+
+        <div data-ng-controller="exampleCtrl" class="container">
 
             <div class="interaction">
                 <span class="fa" data-ng-class="{'fa-volume-up': !muted, 'fa-volume-off': muted }" data-ng-click="muted=!muted"></span>
             </div>
 
             <div class="controls-wrapper">
-                <div recorder-controls data-minified="minified" data-muted="muted"></recorder-controls>
+                <div recorder-controls data-minified="minified" data-muted="muted" data-include-audio="true"></recorder-controls>
             </div>
 
         </div>
