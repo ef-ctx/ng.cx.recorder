@@ -88,6 +88,7 @@ module.exports = function (grunt, data) {
             vendor_js: [
                 '<%= paths.vendor %>/angular/angular.js',
                 '<%= paths.vendor %>/recordrtc/RecordRTC.js',
+                '<%= paths.vendor %>/ng.cx.ua/dist/ng.cx.ua.js',
             ],
 
             // test only dependencies
@@ -169,6 +170,7 @@ module.exports = function (grunt, data) {
                 examplesScripts: [
                     'vendor/angular/angular.js',
                     'vendor/recordrtc/RecordRTC.js',
+                    'vendor/ng.cx.ua/dist/ng.cx.ua.js',
                     'src/lib/<%= vars.ngNamespace %>/<%= vars.ngNamespace %>.js',
 
                     'src/lib/<%= vars.ngNamespace %>/<%= vars.ngNamespace %>.templates.js',

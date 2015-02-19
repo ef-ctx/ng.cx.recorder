@@ -1,11 +1,14 @@
-/* jshint loopfunc:true */
 /* globals RecordRTC:true */
 
 (function (angular) {
+
     'use strict';
 
-    var module = angular.module('ng.cx.recorder', ['ng.cx.recorder.templates']);
+    var module = angular.module('ng.cx.recorder', ['ng.cx.recorder.templates', 'ng.cx.ua']);
 
+    /**
+     * Constraints used to capture and record media. it is user by userMedia and SingleMedia
+     **/
     var MEDIA_CONSTRAINTS = {
         video: {
             // camera constraints
@@ -44,12 +47,17 @@
             record: {
                 type: 'audio'
             }
+        },
+        multiple: {
+            video: true,
+            audio: true
         }
     };
 
     var MEDIA_TYPE = {
         audio: 'audio',
-        video: 'video'
+        video: 'video',
+        multiple: 'multiple'
     };
 
     var MEDIA_STATE = {
@@ -79,7 +87,8 @@
 
             var constraints = {
                 audio: MEDIA_CONSTRAINTS.audio.capture,
-                video: MEDIA_CONSTRAINTS.video.capture
+                video: MEDIA_CONSTRAINTS.video.capture,
+                multiple: MEDIA_CONSTRAINTS.multiple
             };
 
             // get the navigator and the proper userMedia for each browser
@@ -95,7 +104,6 @@
              * @param {Object} constants: constraints for the media to be captured.
              *
              * @returns {Object} promise which will be resolved after the user allow / reject the use of the media capturer
-             *
              **/
             function getMedia(constraints) {
                 var dfd = $q.defer();
@@ -163,7 +171,7 @@
         'userMedia',
         function singleMediaFactory($rootScope, $q, userMedia) {
 
-            var SingleMedia = function (element, sourceUrl) {
+            var SingleMedia = function (element, sourceUrl, multipleStreamCapturingSupported) {
 
                 // --------------------- PROPERTIES
                 var _type;
@@ -320,7 +328,7 @@
 
                 function init() {
 
-                    _type = element.tagName.toLowerCase();
+                    _type = (multipleStreamCapturingSupported) ? 'multiple' : element.tagName.toLowerCase();
 
                     if (MEDIA_TYPE.hasOwnProperty(_type)) {
 
@@ -431,7 +439,7 @@
     module.factory('MediaHandler', [
         '$interval',
         'SingleMedia',
-        function mediaFactory($interval, SingleMedia) {
+        function mediaHandlerFactory($interval, SingleMedia) {
 
             // constructor
             var MediaHandler = function () {
@@ -449,8 +457,8 @@
                  * @param {string} sourceUrl The url which will act as the source for the media element. (optional)
                  * If the sourceUrl is not provided, MediaHandler will try to capture the media from the system.
                  **/
-                function addMediaElement(element, sourceUrl) {
-                    mediaObjects.push(new SingleMedia(element, sourceUrl));
+                function addMediaElement(element, sourceUrl, multipleStreamCapturingSupported) {
+                    mediaObjects.push(new SingleMedia(element, sourceUrl, multipleStreamCapturingSupported));
                 }
 
                 /**
@@ -468,6 +476,7 @@
                     mediaObjects.forEach(function (media) {
                         media.capture();
                     });
+
                 }
 
                 /**
@@ -690,22 +699,46 @@
      */
     module.directive('recorderControls', [
         '$rootScope',
+        'cxUA',
         'MediaHandler',
-        function recorderControls($rootScope, MediaHandler) {
+        function recorderControls($rootScope, cxUA, MediaHandler) {
 
             return {
                 restrict: 'A',
                 templateUrl: 'lib/ng.cx.recorder/ng.cx.recorder.tpl.html',
                 replace: 'element',
                 scope: {
+                    videoElement: '=',
+                    audioElement: '=',
                     videoUrl: '=',
                     audioUrl: '=',
                     minified: '=',
                     registerControlsApi: '=',
                     maxRecordingTime: '=',
                     muted: '=',
+                    includeAudio: '='
                 },
                 link: function ($scope, $element) {
+
+                    function addMediaElements() {
+
+                        if (cxUA.isFirefox) {
+                            if (!!$scope.videoElement) {
+                                if (!!$scope.includeAudio) {
+                                    $scope.mediaHandler.addMediaElement($scope.videoElement, $scope.videoUrl, true);
+                                } else {
+                                    $scope.mediaHandler.addMediaElement($scope.videoElement, $scope.videoUrl);
+                                }
+                            }
+                        } else {
+                            if (!!$scope.includeAudio) {
+                                $scope.mediaHandler.addMediaElement(angular.element('<audio>')[0], $scope.audioUrl);
+                            }
+                            if (!!$scope.videoElement) {
+                                $scope.mediaHandler.addMediaElement($scope.videoElement, $scope.videoUrl);
+                            }
+                        }
+                    }
 
                     /**
                      * Initialization of the directive
@@ -713,7 +746,7 @@
                     function init() {
                         $scope.mediaHandler = new MediaHandler();
                         $scope.mediaHandler.maxRecordingSeconds = $scope.maxDuration;
-                        $scope.mediaHandler.addMediaElement(angular.element('<audio>')[0]);
+                        addMediaElements();
 
                         if ($scope.registerControlsApi) {
                             $scope.registerControlsApi({
@@ -726,13 +759,6 @@
 
                     $scope.$watch('muted', function (value) {
                         $scope.mediaHandler.muted = value;
-                    });
-
-                    /**
-                     * video component initializes when a message with the element is broadcasted from a parent scope
-                     **/
-                    $scope.$on('classroom.tool.recorderVideo.bindElement', function (evt, $videoElement) {
-                        $scope.mediaHandler.addMediaElement($videoElement[0], $scope.videoUrl);
                     });
 
                     $scope.MEDIA_STATE = MEDIA_STATE;
