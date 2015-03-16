@@ -16,7 +16,9 @@
                 video: {
                     mandatory: {
                         maxWidth: 640,
-                        maxHeight: 480
+                        maxHeight: 480,
+                        minWidth: 640,
+                        minHeight: 480
                     }
                 },
                 audio: false
@@ -74,8 +76,8 @@
      * @name ng.cx.recorder.service:userMedia
      *
      * @description
-     *      Ask the user to get the camera / microphone stream.
-     *      The service shims navigator.getUserMedia to make it work in all browsers and handles error if getUserMedia is not supported.
+     *      <p>provides a way to get the streams from the camera and / or the microphone.</p>
+     *      <p>The service shims navigator.getUserMedia to make it work in all browsers and handles error if getUserMedia is not supported.</p>
      **/
     module.service('userMedia', [
         '$q',
@@ -110,6 +112,7 @@
                 var stream;
 
                 if (!navigator.getMedia) {
+                    console.log('capturing constraints ', constraints);
                     getUserMedia.call(navigator, constraints, function (_stream) {
                         stream = {
                             source: _stream,
@@ -133,14 +136,26 @@
              *
              * @description
              *
-             * Shortcut for getMedia with video / audio constraints
+             * Asks the user to use the camera and/or the microphone and returns a promise providing the stream and an URL object where the stream
+             * will be used.
+             *
+             * <p>If the user grant permission to use the device it will resolve the deferred object returned.</p>
+             * <p>If the user rejects : the deferred object will be rejected</p>
+             *
+             * <p>If the browser does not allow to request the use of the media devices: the deferred object will be rejected.</p>
              *
              * @param {String} type
-             * Indicates the type of media to be captured
+             * Indicates the type of media to be captured, it can be : <ul><li>'audio'</li><li>'video'</li><li>'multiple'</li><ul>
              *
              * @returns {Object}
              * <p> A promise which will be resolved when the user grant the access to the camera / microphone. </p>
              * <p> the promise will resolve an object with the stream and the url Object to retrieve the stream </p>
+             * ```
+             * {
+             *    source: the stream,
+             *    url: the url where the browser can fetch the stream
+             * }
+             * ```
              *
              **/
             function getMediaByType(type) {
@@ -203,17 +218,19 @@
                         _element.src = _streamUrl;
                         _element.volume = 0;
                         _element.play();
-                        dfd.resolve(_streamUrl);
                         _state = MEDIA_STATE.capturing;
+
+                        dfd.resolve(_streamUrl);
+
                     } else {
                         userMedia.getMedia(_type).then(function (stream) {
-                            dfd.resolve(stream);
                             _stream = stream.source;
                             _streamUrl = stream.url;
                             _element.src = _streamUrl;
                             _element.play();
                             _capturingEnabled = true;
                             _state = MEDIA_STATE.capturing;
+                            dfd.resolve(stream);
                         });
                     }
 
@@ -746,7 +763,7 @@
                     function init() {
                         $scope.mediaHandler = new MediaHandler();
                         $scope.mediaHandler.maxRecordingSeconds = $scope.maxDuration;
-                        addMediaElements();
+                        $scope.$evalAsync(addMediaElements);
 
                         if ($scope.registerControlsApi) {
                             $scope.registerControlsApi({
