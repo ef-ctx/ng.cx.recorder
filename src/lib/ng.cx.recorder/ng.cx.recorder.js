@@ -15,9 +15,9 @@
             capture: {
                 video: {
                     mandatory: {
-                        maxWidth: 640,
+                        maxWidth: 768,
                         maxHeight: 480,
-                        minWidth: 640,
+                        minWidth: 768,
                         minHeight: 480
                     }
                 },
@@ -27,12 +27,12 @@
             record: {
                 type: 'video',
                 video: {
-                    width: 640,
+                    width: 768,
                     height: 480,
                     frameRate: 10
                 },
                 canvas: {
-                    width: 640,
+                    width: 768,
                     height: 480,
                     frameRate: 10
                 }
