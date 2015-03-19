@@ -15,10 +15,8 @@
             capture: {
                 video: {
                     mandatory: {
-                        maxWidth: 768,
-                        maxHeight: 480,
-                        minWidth: 768,
-                        minHeight: 480
+                        maxWidth: 1024,
+                        maxHeight: 576
                     }
                 },
                 audio: false
@@ -27,14 +25,8 @@
             record: {
                 type: 'video',
                 video: {
-                    width: 768,
-                    height: 480,
-                    frameRate: 10
-                },
-                canvas: {
-                    width: 768,
-                    height: 480,
-                    frameRate: 10
+                    width: 1024,
+                    height: 576
                 }
             }
         },
@@ -187,7 +179,6 @@
         function singleMediaFactory($rootScope, $q, userMedia) {
 
             var SingleMedia = function (element, sourceUrl, multipleStreamCapturingSupported) {
-
                 // --------------------- PROPERTIES
                 var _type;
                 var _constraints;
@@ -198,6 +189,20 @@
                 var _recorder;
                 var _capturingEnabled = false;
                 var _state = MEDIA_STATE.disabled;
+
+                function logState() {
+                    var output = '';
+
+                    if (_type === 'audio') {
+                        output += '--AUDIO--------';
+                    } else {
+                        output += '--------VIDEO--';
+                    }
+                    output += _state.toUpperCase();
+                    output += '------------ volume: ' + _element.volume;
+
+                    console.log(output);
+                }
 
                 /**
                  * @ngdoc function
@@ -211,7 +216,6 @@
                  * @return {Object} promise
                  **/
                 function capture() {
-
                     var dfd = $q.defer();
 
                     if (_streamUrl) {
@@ -221,7 +225,6 @@
                         _state = MEDIA_STATE.capturing;
 
                         dfd.resolve(_streamUrl);
-
                     } else {
                         userMedia.getMedia(_type).then(function (stream) {
                             _stream = stream.source;
@@ -230,6 +233,8 @@
                             _element.play();
                             _capturingEnabled = true;
                             _state = MEDIA_STATE.capturing;
+                            _recorder = new RecordRTC(stream.source, _constraints.record);
+                            logState();
                             dfd.resolve(stream);
                         });
                     }
@@ -246,7 +251,10 @@
                  * Stop capturing
                  **/
                 function stopStream() {
-                    _stream.stop();
+                    if (_stream) {
+                        _stream.stop();
+                        logState();
+                    }
                 }
 
                 /**
@@ -260,6 +268,7 @@
                 function record() {
                     _recorder.startRecording();
                     _state = MEDIA_STATE.recording;
+                    logState();
                 }
 
                 /**
@@ -271,12 +280,21 @@
                  * Stops recording and sets the result as the src of the element
                  **/
                 function stopRecording() {
+                    var dfd = $q.defer();
 
                     _recorder.stopRecording(function (url) {
                         _blobUrl = url;
                         _element.src = url;
+
+                        dfd.resolve({
+                            type: _type,
+                            blobUrl: url
+                        });
+
+                        logState();
                     });
 
+                    return dfd.promise;
                 }
 
                 /**
@@ -291,6 +309,7 @@
                     _element.play();
                     _element.volume = 0.5;
                     _state = MEDIA_STATE.playing;
+                    logState();
                 }
 
                 /**
@@ -303,7 +322,9 @@
                  **/
                 function pause() {
                     _element.pause();
+                    _element.volume = 0;
                     _state = MEDIA_STATE.paused;
+                    logState();
                 }
 
                 /**
@@ -315,18 +336,31 @@
                  * Stops recording if it is recording or pause and move to second 0 if it is playing
                  **/
                 function stop() {
+                    var dfd = $q.defer();
 
                     if (_state === MEDIA_STATE.recording) {
-                        stopRecording();
+                        stopRecording().then(function (blobUrl) {
+                            dfd.resolve(blobUrl);
+                        });
+                    } else {
+                        dfd.resolve();
                     }
 
                     _element.currentTime = 0;
                     _element.pause();
+                    _element.volume = 0;
 
                     _state = MEDIA_STATE.stopped;
+
+                    logState();
+
+                    return dfd.promise;
                 }
 
                 function removeRecording() {
+                    _blobUrl = null;
+                    _state = MEDIA_STATE.disabled;
+                    logState();
                     capture();
                 }
 
@@ -344,11 +378,9 @@
                 }
 
                 function init() {
-
                     _type = (multipleStreamCapturingSupported) ? 'multiple' : element.tagName.toLowerCase();
 
                     if (MEDIA_TYPE.hasOwnProperty(_type)) {
-
                         _constraints = MEDIA_CONSTRAINTS[_type];
 
                         _element = element;
@@ -361,16 +393,13 @@
 
                         if (sourceUrl) {
                             _element.src = sourceUrl;
+                            _state = MEDIA_STATE.paused;
                         } else {
-                            capture().then(function (stream) {
-                                _recorder = new RecordRTC(stream.source, _constraints.record);
-                            });
+                            capture();
                         }
-
                     } else {
                         throw new Error('SingleMedia factory Error: type : ' + _type + ' is not supported as media element');
                     }
-
                 }
 
                 // --------------------- METHODS
@@ -426,12 +455,10 @@
                 });
 
                 init();
-
             };
 
             return SingleMedia;
         }
-
     ]);
 
     /**
@@ -455,8 +482,9 @@
      **/
     module.factory('MediaHandler', [
         '$interval',
+        '$q',
         'SingleMedia',
-        function mediaHandlerFactory($interval, SingleMedia) {
+        function mediaHandlerFactory($interval, $q, SingleMedia) {
 
             // constructor
             var MediaHandler = function () {
@@ -547,13 +575,24 @@
                  * Stops recording and returns a promise which will resolve in an object containing the blobs and the urls to fetch them
                  **/
                 function stop() {
+
+                    var dfd = $q.defer();
+                    var promises = [];
+
                     mediaObjects.forEach(function (media) {
-                        media.stop();
+                        promises.push(media.stop());
+                    });
+
+                    $q.all(promises).then(function (media) {
+                        dfd.resolve(media);
                     });
 
                     if (interval) {
                         $interval.cancel(interval);
                     }
+
+                    return dfd.promise;
+
                 }
 
                 /**
@@ -588,6 +627,10 @@
                     mediaObjects.forEach(function (media) {
                         media.removeRecording();
                     });
+
+                    if (interval) {
+                        $interval.cancel(interval);
+                    }
                 }
 
                 function getState() {
@@ -599,37 +642,10 @@
 
                 }
 
-                /**
-                 *  stop --> record --> paused --> playing
-                 *                        ^           |
-                 *                        |           v
-                 *                         -----------
-                 */
-                function goToNexStep() {
-                    var state = getState();
-                    switch (state) {
-                    case MEDIA_STATE.capturing: // stopped -> record;
-                        record();
-                        break;
-                    case MEDIA_STATE.recording: // record -> stop;
-                        stop();
-                        break;
-                    case MEDIA_STATE.paused: // stop -> play;
-                        play();
-                        break;
-                    case MEDIA_STATE.stopped: // stop -> play;
-                        play();
-                        break;
-                    case MEDIA_STATE.playing: // play -> pause;
-                        pause();
-                        break;
-                    }
-                }
-
                 this.addMediaElement = addMediaElement;
                 this.stopStream = stopStream;
-                this.goToNexStep = goToNexStep;
                 this.removeRecording = removeRecording;
+                this.record = record;
                 this.stop = stop;
                 this.pause = pause;
                 this.play = play;
@@ -733,12 +749,12 @@
                     registerControlsApi: '=',
                     maxRecordingTime: '=',
                     muted: '=',
-                    includeAudio: '='
+                    includeAudio: '=',
+                    mediaRecordedHandler: '='
                 },
                 link: function ($scope, $element) {
 
                     function addMediaElements() {
-
                         if (cxUA.isFirefox) {
                             if (!!$scope.videoElement) {
                                 if (!!$scope.includeAudio) {
@@ -757,29 +773,24 @@
                         }
                     }
 
-                    /**
-                     * Initialization of the directive
-                     **/
-                    function init() {
-                        $scope.mediaHandler = new MediaHandler();
-                        $scope.mediaHandler.maxRecordingSeconds = $scope.maxDuration;
-                        $scope.$evalAsync(addMediaElements);
+                    $scope.MEDIA_STATE = MEDIA_STATE;
+                    $scope.maxDuration = $scope.maxRecordingTime || 120;
 
-                        if ($scope.registerControlsApi) {
-                            $scope.registerControlsApi({
-                                record: $scope.mediaHandler.record,
-                                play: $scope.mediaHandler.play,
-                                stop: $scope.mediaHandler.stop
-                            });
-                        }
+                    $scope.mediaHandler = new MediaHandler();
+                    $scope.mediaHandler.maxRecordingSeconds = $scope.maxDuration;
+                    $scope.$evalAsync(addMediaElements);
+
+                    if ($scope.registerControlsApi) {
+                        $scope.registerControlsApi({
+                            record: $scope.mediaHandler.record,
+                            play: $scope.mediaHandler.play,
+                            stop: $scope.mediaHandler.stop
+                        });
                     }
 
                     $scope.$watch('muted', function (value) {
                         $scope.mediaHandler.muted = value;
                     });
-
-                    $scope.MEDIA_STATE = MEDIA_STATE;
-                    $scope.maxDuration = $scope.maxRecordingTime || 120;
 
                     $scope.rangeHandlers = {
                         mouseDown: function () {
@@ -801,14 +812,41 @@
                     };
 
                     $scope.$watch('mediaHandler.currentTime', function (value) {
-
                         if ($scope.time.trackingEnabled) {
                             $scope.time.unformatted = value;
                         }
-
                         $scope.time.formatted.setSeconds(value);
-
                     });
+
+                    /**
+                     *  stop --> record --> paused --> playing
+                     *                        ^           |
+                     *                        |           v
+                     *                         -----------
+                     */
+                    $scope.changeState = function () {
+                        switch ($scope.mediaHandler.state) {
+                        case MEDIA_STATE.capturing: // stopped -> record;
+                            $scope.mediaHandler.record();
+                            break;
+                        case MEDIA_STATE.recording: // record -> stop;
+                            $scope.mediaHandler.stop().then(function (media) {
+                                if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
+                                    $scope.mediaRecordedHandler(media);
+                                }
+                            });
+                            break;
+                        case MEDIA_STATE.paused: // stop -> play;
+                            $scope.mediaHandler.play();
+                            break;
+                        case MEDIA_STATE.stopped: // stop -> play;
+                            $scope.mediaHandler.play();
+                            break;
+                        case MEDIA_STATE.playing: // play -> pause;
+                            $scope.mediaHandler.pause();
+                            break;
+                        }
+                    };
 
                     /**
                      * when the tool is removed it stops capturing video and audio
@@ -817,8 +855,6 @@
                         $scope.mediaHandler.stop();
                         $scope.mediaHandler.stopStream();
                     });
-
-                    init();
 
                 }
             };
