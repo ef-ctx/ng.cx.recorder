@@ -1,12 +1,12 @@
 <div class="recorder-controls {{ mediaHandler.state }}" data-ng-class="{'minified': minified}">
 
-    <div class="button button-control" data-ng-click="mediaHandler.goToNexStep()">
-        <i class="fa" data-ng-class="{
-            'fa-circle': (!mediaHandler.isCapturingEnabled),
-            'fa-circle record': (mediaHandler.state === MEDIA_STATE.capturing),
-            'fa-play': ( (mediaHandler.state === MEDIA_STATE.paused) || (mediaHandler.state === MEDIA_STATE.stopped) ),
-            'fa-pause': (mediaHandler.state === MEDIA_STATE.playing),
-            'fa-stop record': (mediaHandler.state === MEDIA_STATE.recording)
+    <div class="button button-control" data-ng-click="changeState()">
+        <i class="recorder-controls-icon" data-ng-class="{
+            'recorder-controls-icon-disabled': (mediaHandler.state === MEDIA_STATE.disabled),
+            'recorder-controls-icon-record record': (mediaHandler.state === MEDIA_STATE.capturing),
+            'recorder-controls-icon-play': ( (mediaHandler.state === MEDIA_STATE.paused) || (mediaHandler.state === MEDIA_STATE.stopped) ),
+            'recorder-controls-icon-pause': (mediaHandler.state === MEDIA_STATE.playing),
+            'recorder-controls-icon-stop record': (mediaHandler.state === MEDIA_STATE.recording)
             }">
         </i>
     </div>
@@ -33,7 +33,7 @@
     <div class="button button-remove"
         data-ng-click="mediaHandler.removeRecording()"
         data-ng-show="((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))">
-        <i class="fa fa-trash"></i>
+        <i class="recorder-controls-icon recorder-controls-icon-delete"></i>
     </div>
 
 

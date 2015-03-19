@@ -2,7 +2,6 @@
 
 .recorder-controls {
     position: relative;
-    margin-top:900px;
     height: @recorder-controls-height;
     width: @recorder-controls-width;
     padding: @recorder-controls-padding;
@@ -37,6 +36,41 @@
                 color: @recorder-controls-disabled-color;
             }
         }
+    }
+
+    .recorder-controls-icon {
+        display: inline-block;
+        font: @recorder-controls-icon-font;
+        font-size: inherit;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transform: translate(0, 0);
+    }
+
+
+    .recorder-controls-icon-disabled:before {
+        content: @recorder-controls-icon-disabled-char;
+    }
+
+    .recorder-controls-icon-record:before {
+        content: @recorder-controls-icon-record-char;
+    }
+
+    .recorder-controls-icon-play:before {
+        content: @recorder-controls-icon-play-char;
+    }
+
+    .recorder-controls-icon-pause:before {
+        content: @recorder-controls-icon-pause-char;
+    }
+
+    .recorder-controls-icon-stop:before {
+        content: @recorder-controls-icon-stop-char;
+    }
+
+    .recorder-controls-icon-delete:before {
+        content: @recorder-controls-icon-delete-char;
     }
 
     .time-tracker {
