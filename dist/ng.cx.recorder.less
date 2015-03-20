@@ -1,0 +1,225 @@
+@import "ng.cx.recorder.variables.less";
+
+.recorder-controls {
+    position: relative;
+    height: @recorder-controls-height;
+    width: @recorder-controls-width;
+    padding: @recorder-controls-padding;
+    margin: @recorder-controls-margin;
+    background-color: @recorder-controls-bg;
+    box-shadow: @recorder-controls-box-shadow;
+    border-radius: @recorder-controls-border-radius;
+
+    .button-control {
+        display: table-cell;
+        width: @recorder-controls-control-button-size;
+        height: @recorder-controls-control-button-size;
+        line-height: @recorder-controls-control-button-size;
+        text-align: center;
+        font-size: @recorder-controls-font-size;
+        color: @recorder-controls-control-button-fg-color;
+        cursor: pointer;
+
+        i {
+            width: @recorder-controls-control-button-size;
+            height: @recorder-controls-control-button-size;
+            line-height: @recorder-controls-control-button-size;
+
+            &.record {
+                color: @recorder-controls-red-icons-color;
+            }
+        }
+
+        &.disabled {
+            cursor: not-allowed;
+            i.ef-icon {
+                color: @recorder-controls-disabled-color;
+            }
+        }
+    }
+
+    .recorder-controls-icon {
+        display: inline-block;
+        font: @recorder-controls-icon-font;
+        font-size: inherit;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transform: translate(0, 0);
+    }
+
+
+    .recorder-controls-icon-disabled:before {
+        content: @recorder-controls-icon-disabled-char;
+    }
+
+    .recorder-controls-icon-record:before {
+        content: @recorder-controls-icon-record-char;
+    }
+
+    .recorder-controls-icon-play:before {
+        content: @recorder-controls-icon-play-char;
+    }
+
+    .recorder-controls-icon-pause:before {
+        content: @recorder-controls-icon-pause-char;
+    }
+
+    .recorder-controls-icon-stop:before {
+        content: @recorder-controls-icon-stop-char;
+    }
+
+    .recorder-controls-icon-delete:before {
+        content: @recorder-controls-icon-delete-char;
+    }
+
+    .time-tracker {
+
+        display: table-cell;
+        width: @recorder-controls-time-tracker-width;
+        height: @recorder-controls-time-tracker-height;
+        line-height: @recorder-controls-time-tracker-height;
+        padding: @recorder-controls-time-tracker-padding;
+        text-align: left;
+        vertical-align: middle;
+        color: @recorder-controls-duration-fg-color;
+    }
+
+    .scrub-control {
+        display: table-cell;
+        position: relative;
+        width: @recorder-controls-scrub-control-width;
+        height: @recorder-controls-control-button-size;
+        vertical-align: middle;
+    }
+
+    .progress-bar-backdrop {
+        z-index: 1;
+        width: 100%;
+        height: @recorder-controls-progress-bar-backdrop-height;
+        background-color: @recorder-controls-progress-bar-backdrop-background-color;
+        border-radius: @recorder-controls-progress-bar-backdrop-border-radius;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: @recorder-controls-progress-bar-background-color;
+    }
+
+    input[type="range"] {
+        position: absolute;
+        top: 18px;
+        left: 0;
+        -webkit-appearance: none;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+        width: 102%;
+        height: 0;
+        margin: 0;
+        border: none;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        //box-shadow: inset 0 1px 0 0 #0d0e0f, inset 0 -1px 0 0 #3a3d42;
+        //-webkit-box-shadow: inset 0 1px 0 0 #0d0e0f, inset 0 -1px 0 0 #3a3d42;
+        outline: none; /* no focus outline */
+        cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-track {
+        border: inherit;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-ms-track {
+        border: inherit;
+        color: transparent; /* don't drawn vertical reference line */
+        background: transparent;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-ms-fill-lower,
+    input[type="range"]::-ms-fill-upper {
+        background: transparent;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-ms-tooltip {
+        display: none;
+        cursor: pointer;
+    }
+
+    /* thumb */
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: @recorder-controls-scrub-handle-size;
+        height: @recorder-controls-scrub-handle-size;
+        border: none;
+        border-radius: 50%;
+        background: @recorder-controls-scrub-handle-color;
+        cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+        width: @recorder-controls-scrub-handle-size;
+        height: @recorder-controls-scrub-handle-size;
+        border: none;
+        border-radius: 50%;
+        background: @recorder-controls-scrub-handle-color;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-ms-thumb {
+        width: @recorder-controls-scrub-handle-size;
+        height: @recorder-controls-scrub-handle-size;
+        border: 0;
+        border-radius: 50%;
+        background: @recorder-controls-scrub-handle-color;
+        cursor: pointer;
+    }
+
+    .button-remove {
+        display: block;
+        position: absolute;
+        top: @recorder-controls-button-remove-top;
+        right: @recorder-controls-button-remove-right;
+        width: @recorder-controls-button-remove-width;
+        height: @recorder-controls-button-remove-height;
+        padding-left: @recorder-controls-button-remove-padding-left;
+        vertical-align: @recorder-controls-button-remove-vertical-align;
+        font-size: @recorder-controls-button-remove-font-size;
+        color: @recorder-controls-button-remove-color;
+        cursor: pointer;
+    }
+
+    &.minified {
+        bottom: 0;
+        left: 0;
+        width: 86px;
+        height: 86px;
+        padding: @recorder-controls-audio-recorder-controls-padding;
+        .button-remove {
+            top: @recorder-controls-audio-button-remove-top;
+            right: @recorder-controls-audio-button-remove-right;
+            bottom: @recorder-controls-audio-button-remove-bottom;
+            width: @recorder-controls-audio-button-remove-width;
+            height: @recorder-controls-audio-button-remove-height;
+            padding-left: @recorder-controls-audio-button-remove-padding-left;
+        }
+        .scrub-control, .time-tracker {
+            display: none;
+        }
+    }
+
+}
+
+.debug-container{
+    position: absolute;
+    top: -100px;
+    left: 200px;
+    width: 300px;
+    height: 50px;
+    font-size: 10px;
+    background-color: rgba(255,255,255,0.5);
+}
