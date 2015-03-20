@@ -54,7 +54,7 @@ that you can browse the documentation, the examples and the code coverage.
 
 ## [MIT License](LICENSE)
 
-[Copyright (c) 2005 EF CTX](https://raw.githubusercontent.com/EFEducationFirstMobile/oss/master/LICENSE)
+[Copyright (c) 2015 EF CTX](https://raw.githubusercontent.com/EFEducationFirstMobile/oss/master/LICENSE)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
