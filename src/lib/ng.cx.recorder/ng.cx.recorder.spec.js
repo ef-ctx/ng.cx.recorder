@@ -29,4 +29,3 @@ describe('ng.cx.recorder', function () {
     });
 
 });
-
