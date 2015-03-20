@@ -15,7 +15,7 @@
             capture: {
                 video: {
                     mandatory: {
-                        maxWidth: 1024,
+                        maxWidth: 768,
                         maxHeight: 576
                     }
                 },
@@ -25,7 +25,11 @@
             record: {
                 type: 'video',
                 video: {
-                    width: 1024,
+                    width: 768,
+                    height: 576
+                },
+                canvas: {
+                    width: 768,
                     height: 576
                 }
             }
@@ -175,8 +179,9 @@
     module.factory('SingleMedia', [
         '$rootScope',
         '$q',
+        '$window',
         'userMedia',
-        function singleMediaFactory($rootScope, $q, userMedia) {
+        function singleMediaFactory($rootScope, $q, $window, userMedia) {
 
             var SingleMedia = function (element, sourceUrl, multipleStreamCapturingSupported) {
                 // --------------------- PROPERTIES
@@ -253,6 +258,7 @@
                 function stopStream() {
                     if (_stream) {
                         _stream.stop();
+                        $window.URL.revokeObjectURL(_streamUrl);
                         logState();
                     }
                 }
@@ -288,7 +294,8 @@
 
                         dfd.resolve({
                             type: _type,
-                            blobUrl: url
+                            blobUrl: url,
+                            blob: _recorder.blob
                         });
 
                         logState();
@@ -358,6 +365,7 @@
                 }
 
                 function removeRecording() {
+                    $window.URL.revokeObjectURL(_blobUrl);
                     _blobUrl = null;
                     _state = MEDIA_STATE.disabled;
                     logState();
@@ -568,7 +576,7 @@
 
                 /**
                  * @ngdoc function
-                 * @name stopRecording
+                 * @name stop
                  * @methodOf ng.cx.recorder.MediaHandler
                  *
                  * @description
