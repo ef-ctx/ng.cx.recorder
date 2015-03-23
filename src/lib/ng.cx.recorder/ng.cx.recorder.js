@@ -108,7 +108,7 @@
                 var stream;
 
                 if (!navigator.getMedia) {
-                    console.log('capturing constraints ', constraints);
+                    //console.log('capturing constraints ', constraints);
                     getUserMedia.call(navigator, constraints, function (_stream) {
                         stream = {
                             source: _stream,
@@ -206,7 +206,7 @@
                     output += _state.toUpperCase();
                     output += '------------ volume: ' + _element.volume;
 
-                    console.log(output);
+                    //console.log(output);
                 }
 
                 /**
@@ -684,6 +684,8 @@
                         } else if (mediaObjects[0]) {
                             time = mediaObjects[0].currentTime;
                         }
+                        console.log('current Time', time);
+
                         return time;
                     },
                     set: function (value) {
@@ -823,6 +825,7 @@
                         if ($scope.time.trackingEnabled) {
                             $scope.time.unformatted = value;
                         }
+                        $scope.time.formatted = new Date(0);
                         $scope.time.formatted.setSeconds(value);
                     });
 

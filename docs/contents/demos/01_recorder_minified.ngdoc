@@ -76,10 +76,11 @@ Recorder
             angular.module('exampleApp', ['ng.cx.recorder'])
 
             .controller('exampleCtrl', [
-                '$scope', 
+                '$document',
                 '$element',
+                '$scope', 
                 '$timeout',
-                function ($scope, $element, $timeout) {
+                function ($document, $element, $scope, $timeout) {
                     $scope.video1 = $document[0].getElementById('v1');
                     $scope.minified = true;
                 }
