@@ -1,5 +1,5 @@
 /**
- * ng.cx.recorder - v0.0.2 - 2015-03-23
+ * ng.cx.recorder - v0.0.3 - 2015-03-23
  * https://github.com/ef-ctx/ng.cx.recorder
  *
  * Copyright (c) 2015 EF CTX <http://ef.com>
@@ -126,7 +126,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                 var stream;
 
                 if (!navigator.getMedia) {
-                    console.log('capturing constraints ', constraints);
+                    //console.log('capturing constraints ', constraints);
                     getUserMedia.call(navigator, constraints, function (_stream) {
                         stream = {
                             source: _stream,
@@ -224,7 +224,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                     output += _state.toUpperCase();
                     output += '------------ volume: ' + _element.volume;
 
-                    console.log(output);
+                    //console.log(output);
                 }
 
                 /**
@@ -702,6 +702,8 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                         } else if (mediaObjects[0]) {
                             time = mediaObjects[0].currentTime;
                         }
+                        console.log('current Time', time);
+
                         return time;
                     },
                     set: function (value) {
@@ -841,6 +843,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                         if ($scope.time.trackingEnabled) {
                             $scope.time.unformatted = value;
                         }
+                        $scope.time.formatted = new Date(0);
                         $scope.time.formatted.setSeconds(value);
                     });
 

@@ -1,5 +1,5 @@
 /**
- * ng.cx.recorder - v0.0.2 - 2015-03-23
+ * ng.cx.recorder - v0.0.3 - 2015-03-23
  * https://github.com/ef-ctx/ng.cx.recorder
  *
  * Copyright (c) 2015 EF CTX <http://ef.com>
@@ -11,9 +11,9 @@
   width: 440px;
   padding: 20px;
   margin: 0 auto;
-  background-color: #e9eef4;
-  box-shadow: 0px 0px 0px 2px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
+  background-color: #efefef;
+  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.3);
+  border-radius: 0;
   /* thumb */
 }
 .recorder-controls .button-control {
@@ -23,7 +23,7 @@
   line-height: 36px;
   text-align: center;
   font-size: 34px;
-  color: #4a4a4a;
+  color: #444444;
   cursor: pointer;
 }
 .recorder-controls .button-control i {
@@ -32,13 +32,13 @@
   line-height: 36px;
 }
 .recorder-controls .button-control i.record {
-  color: #cc4436;
+  color: #d30000;
 }
 .recorder-controls .button-control.disabled {
   cursor: not-allowed;
 }
 .recorder-controls .button-control.disabled i.ef-icon {
-  color: #c8ced5;
+  color: #999999;
 }
 .recorder-controls .recorder-controls-icon {
   display: inline-block;
@@ -75,7 +75,7 @@
   padding: 0 10px 0 24px;
   text-align: left;
   vertical-align: middle;
-  color: #4a4a4a;
+  color: #444444;
 }
 .recorder-controls .scrub-control {
   display: table-cell;
@@ -88,13 +88,13 @@
   z-index: 1;
   width: 100%;
   height: 8px;
-  background-color: #c2c2c2;
-  border-radius: 3px;
+  background-color: #dddddd;
+  border-radius: 0;
   overflow: hidden;
 }
 .recorder-controls .progress-bar {
   height: 100%;
-  background-color: #49a2e6;
+  background-color: #4183c4;
 }
 .recorder-controls input[type="range"] {
   position: absolute;
@@ -140,7 +140,7 @@
   height: 15px;
   border: none;
   border-radius: 50%;
-  background: #4a4a4a;
+  background: #444444;
   cursor: pointer;
 }
 .recorder-controls input[type="range"]::-moz-range-thumb {
@@ -148,7 +148,7 @@
   height: 15px;
   border: none;
   border-radius: 50%;
-  background: #4a4a4a;
+  background: #444444;
   cursor: pointer;
 }
 .recorder-controls input[type="range"]::-ms-thumb {
@@ -156,7 +156,7 @@
   height: 15px;
   border: 0;
   border-radius: 50%;
-  background: #4a4a4a;
+  background: #444444;
   cursor: pointer;
 }
 .recorder-controls .button-remove {
