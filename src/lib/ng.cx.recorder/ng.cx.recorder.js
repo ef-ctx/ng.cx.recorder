@@ -684,6 +684,8 @@
                         } else if (mediaObjects[0]) {
                             time = mediaObjects[0].currentTime;
                         }
+                        console.log('current Time', time);
+
                         return time;
                     },
                     set: function (value) {
@@ -823,6 +825,7 @@
                         if ($scope.time.trackingEnabled) {
                             $scope.time.unformatted = value;
                         }
+                        $scope.time.formatted = new Date(0);
                         $scope.time.formatted.setSeconds(value);
                     });
 
