@@ -1,3 +1,11 @@
+<a name="v0.0.5"></a>
+### v0.0.5 (2015-03-25)
+
+
+#### Features
+
+* **progressBar:** safe progress bar percent ([4fb1c8fb](git@github.com:ef-ctx/ng.cx.recorder/commit/4fb1c8fb07de9556edd9c9ba9bf5aa7ed7fe6431))
+
 <a name="v0.0.4"></a>
 ### v0.0.4 (2015-03-25)
 
