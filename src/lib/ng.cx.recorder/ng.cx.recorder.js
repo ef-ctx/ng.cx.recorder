@@ -843,27 +843,30 @@
                      *                         -----------
                      */
                     $scope.changeState = function () {
-                        switch ($scope.mediaHandler.state) {
-                        case MEDIA_STATE.capturing: // stopped -> record;
-                            $scope.mediaHandler.record();
-                            break;
-                        case MEDIA_STATE.recording: // record -> stop;
-                            $scope.mediaHandler.stop().then(function (media) {
-                                if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
-                                    $scope.mediaRecordedHandler(media);
-                                }
-                            });
-                            break;
-                        case MEDIA_STATE.paused: // stop -> play;
-                            $scope.mediaHandler.play();
-                            break;
-                        case MEDIA_STATE.stopped: // stop -> play;
-                            $scope.mediaHandler.play();
-                            break;
-                        case MEDIA_STATE.playing: // play -> pause;
-                            $scope.mediaHandler.pause();
-                            break;
+                        if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
+                            switch ($scope.mediaHandler.state) {
+                            case MEDIA_STATE.capturing: // stopped -> record;
+                                $scope.mediaHandler.record();
+                                break;
+                            case MEDIA_STATE.recording: // record -> stop;
+                                $scope.mediaHandler.stop().then(function (media) {
+                                    if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
+                                        $scope.mediaRecordedHandler(media);
+                                    }
+                                });
+                                break;
+                            case MEDIA_STATE.paused: // stop -> play;
+                                $scope.mediaHandler.play();
+                                break;
+                            case MEDIA_STATE.stopped: // stop -> play;
+                                $scope.mediaHandler.play();
+                                break;
+                            case MEDIA_STATE.playing: // play -> pause;
+                                $scope.mediaHandler.pause();
+                                break;
+                            }
                         }
+
                     };
 
                     /**
