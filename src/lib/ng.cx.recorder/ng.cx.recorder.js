@@ -759,8 +759,113 @@
                     includeAudio: '=',
                     mediaRecordedHandler: '='
                 },
+                controller: [
+                    '$scope',
+                    function ($scope) {
+
+                        var messageNamespace = 'ng.cx.recorder';
+
+                        function getTimePercentage() {
+                            var value = 0;
+
+                            if ($scope.mediaHandler.state === MEDIA_STATE.recording) {
+                                value = ($scope.mediaHandler.duration * 100) / $scope.maxDuration;
+                            } else {
+                                value = ($scope.time.unformatted * 100) / $scope.mediaHandler.duration;
+                            }
+
+                            return Math.ceil(value);
+                        }
+
+                        $scope.MEDIA_STATE = MEDIA_STATE;
+
+                        $scope.mediaHandler = new MediaHandler();
+
+                        $scope.rangeHandlers = {
+                            mouseDown: function () {
+                                $scope.time.trackingEnabled = false;
+                                $scope.mediaHandler.pause();
+                            },
+                            mouseUp: function () {
+                                $scope.time.trackingEnabled = true;
+                            },
+                            change: function () {
+                                $scope.mediaHandler.currentTime = $scope.time.unformatted;
+                                $scope.mediaHandler.play();
+                            }
+                        };
+
+                        $scope.time = {
+                            trackingEnabled: true,
+                            unformatted: 0,
+                            formatted: new Date(null),
+                            percentage: 0
+                        };
+
+                        $scope.$watch('muted', function (value) {
+                            $scope.mediaHandler.muted = value;
+                        });
+
+                        $scope.$watch('mediaHandler.currentTime', function (value) {
+                            if ($scope.time.trackingEnabled) {
+                                $scope.time.unformatted = value;
+                            }
+                            $scope.time.formatted = new Date(0);
+                            $scope.time.formatted.setSeconds(value);
+                            $scope.time.percentage = getTimePercentage();
+                        });
+
+                        /**
+                         *  stop --> record --> paused --> playing
+                         *                        ^           |
+                         *                        |           v
+                         *                         -----------
+                         */
+                        $scope.changeState = function () {
+                            if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
+                                switch ($scope.mediaHandler.state) {
+                                case MEDIA_STATE.capturing: // stopped -> record;
+                                    $scope.mediaHandler.record();
+                                    break;
+                                case MEDIA_STATE.recording: // record -> stop;
+                                    $scope.mediaHandler.stop().then(function (media) {
+                                        if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
+                                            $scope.mediaRecordedHandler(media);
+                                        }
+                                    });
+                                    break;
+                                case MEDIA_STATE.paused: // stop -> play;
+                                    $scope.mediaHandler.play();
+                                    break;
+                                case MEDIA_STATE.stopped: // stop -> play;
+                                    $scope.mediaHandler.play();
+                                    break;
+                                case MEDIA_STATE.playing: // play -> pause;
+                                    $scope.mediaHandler.pause();
+                                    break;
+                                }
+                            }
+                        };
+
+                        /**
+                         * calls mediaHandler to remove recording and
+                         * sends a message: ng.cx.recorder.recordRemoved
+                         **/
+                        $scope.removeRecording = function () {
+                            $scope.mediaHandler.removeRecording();
+                            $scope.$emit(messageNamespace + '.recordRemoved');
+                        };
+
+                        /**
+                         * when the tool is removed it stops capturing video and audio
+                         */
+                        $scope.$on('$destroy', function () {
+                            $scope.mediaHandler.stop();
+                            $scope.mediaHandler.stopStream();
+                        });
+                    }
+                ],
                 link: function ($scope, $element) {
-                    var messageNamespace = 'ng.cx.recorder';
 
                     function addMediaElements() {
                         if (cxUA.isFirefox) {
@@ -781,25 +886,6 @@
                         }
                     }
 
-                    function getTimePercentage() {
-                        var value = 0;
-
-                        if ($scope.mediaHandler.state === MEDIA_STATE.recording) {
-                            value = ($scope.mediaHandler.duration * 100) / $scope.maxDuration;
-                        } else {
-                            value = ($scope.time.unformatted * 100) / $scope.mediaHandler.duration;
-                        }
-
-                        return Math.ceil(value);
-                    }
-
-                    $scope.MEDIA_STATE = MEDIA_STATE;
-                    $scope.maxDuration = $scope.maxRecordingTime || 120;
-
-                    $scope.mediaHandler = new MediaHandler();
-                    $scope.mediaHandler.maxRecordingSeconds = $scope.maxDuration;
-                    $scope.$evalAsync(addMediaElements);
-
                     if ($scope.registerControlsApi) {
                         $scope.registerControlsApi({
                             record: $scope.mediaHandler.record,
@@ -808,87 +894,10 @@
                         });
                     }
 
-                    $scope.$watch('muted', function (value) {
-                        $scope.mediaHandler.muted = value;
-                    });
+                    $scope.maxDuration = $scope.maxRecordingTime || 120;
+                    $scope.mediaHandler.maxRecordingSeconds = $scope.maxDuration;
+                    $scope.$evalAsync(addMediaElements);
 
-                    $scope.rangeHandlers = {
-                        mouseDown: function () {
-                            $scope.time.trackingEnabled = false;
-                            $scope.mediaHandler.pause();
-                        },
-                        mouseUp: function () {
-                            $scope.time.trackingEnabled = true;
-                        },
-                        change: function () {
-                            $scope.mediaHandler.currentTime = $scope.time.unformatted;
-                        }
-                    };
-
-                    $scope.time = {
-                        trackingEnabled: true,
-                        unformatted: 0,
-                        formatted: new Date(null),
-                        percentage: 0
-                    };
-
-                    $scope.$watch('mediaHandler.currentTime', function (value) {
-                        if ($scope.time.trackingEnabled) {
-                            $scope.time.unformatted = value;
-                        }
-                        $scope.time.formatted = new Date(0);
-                        $scope.time.formatted.setSeconds(value);
-                        $scope.time.percentage = getTimePercentage();
-                    });
-
-                    /**
-                     *  stop --> record --> paused --> playing
-                     *                        ^           |
-                     *                        |           v
-                     *                         -----------
-                     */
-                    $scope.changeState = function () {
-                        if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
-                            switch ($scope.mediaHandler.state) {
-                            case MEDIA_STATE.capturing: // stopped -> record;
-                                $scope.mediaHandler.record();
-                                break;
-                            case MEDIA_STATE.recording: // record -> stop;
-                                $scope.mediaHandler.stop().then(function (media) {
-                                    if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
-                                        $scope.mediaRecordedHandler(media);
-                                    }
-                                });
-                                break;
-                            case MEDIA_STATE.paused: // stop -> play;
-                                $scope.mediaHandler.play();
-                                break;
-                            case MEDIA_STATE.stopped: // stop -> play;
-                                $scope.mediaHandler.play();
-                                break;
-                            case MEDIA_STATE.playing: // play -> pause;
-                                $scope.mediaHandler.pause();
-                                break;
-                            }
-                        }
-                    };
-
-                    /**
-                     * calls mediaHandler to remove recording and
-                     * sends a message: ng.cx.recorder.recordRemoved
-                     **/
-                    $scope.removeRecording = function () {
-                        $scope.mediaHandler.removeRecording();
-                        $scope.$emit(messageNamespace + '.recordRemoved');
-                    };
-
-                    /**
-                     * when the tool is removed it stops capturing video and audio
-                     */
-                    $scope.$on('$destroy', function () {
-                        $scope.mediaHandler.stop();
-                        $scope.mediaHandler.stopStream();
-                    });
                 }
             };
         }
