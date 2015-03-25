@@ -1,5 +1,5 @@
 /**
- * ng.cx.recorder - v0.0.3 - 2015-03-23
+ * ng.cx.recorder - v0.0.4 - 2015-03-25
  * https://github.com/ef-ctx/ng.cx.recorder
  *
  * Copyright (c) 2015 EF CTX <http://ef.com>
@@ -13,13 +13,12 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
 "            'recorder-controls-icon-play': ( (mediaHandler.state === MEDIA_STATE.paused) || (mediaHandler.state === MEDIA_STATE.stopped) ),\n" +
 "            'recorder-controls-icon-pause': (mediaHandler.state === MEDIA_STATE.playing),\n" +
 "            'recorder-controls-icon-stop record': (mediaHandler.state === MEDIA_STATE.recording)\n" +
-"            }\"></i></div><div class=time-tracker>{{time.formatted | date : 'mm:ss'}}</div><div class=scrub-control><div class=progress-bar-backdrop><div class=progress-bar style=\"width: {{ (mediaHandler.state === MEDIA_STATE.recording)? (mediaHandler.duration * 100) / maxDuration : 100}}%\"></div></div><input type=range min=0 max={{mediaHandler.duration}} step=0.1 data-ng-model=time.unformatted data-ng-mousedown=rangeHandlers.mouseDown() data-ng-mouseup=rangeHandlers.mouseUp() data-ng-change=rangeHandlers.change() data-ng-show=\"((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))\"></div><div class=\"button button-remove\" data-ng-click=mediaHandler.removeRecording() data-ng-show=\"((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))\"><i class=\"recorder-controls-icon recorder-controls-icon-delete\"></i></div></div>");
+"            }\"></i></div><div class=time-tracker>{{time.formatted | date : 'mm:ss'}}</div><div class=scrub-control><div class=progress-bar-backdrop><div class=progress-bar style=\"width: {{ time.percentage }}%\"></div></div><input type=range min=0 max={{mediaHandler.duration}} step=0.1 data-ng-model=time.unformatted data-ng-mousedown=rangeHandlers.mouseDown() data-ng-mouseup=rangeHandlers.mouseUp() data-ng-change=rangeHandlers.change() data-ng-show=\"((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))\"></div><div class=\"button button-remove\" data-ng-click=removeRecording() data-ng-show=\"((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))\"><i class=\"recorder-controls-icon recorder-controls-icon-delete\"></i></div></div>");
 }]);
 
 /* globals RecordRTC:true */
 
 (function (angular) {
-
     'use strict';
 
     var module = angular.module('ng.cx.recorder', ['ng.cx.recorder.templates', 'ng.cx.ua']);
@@ -200,7 +199,6 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
         '$window',
         'userMedia',
         function singleMediaFactory($rootScope, $q, $window, userMedia) {
-
             var SingleMedia = function (element, sourceUrl, multipleStreamCapturingSupported) {
                 // --------------------- PROPERTIES
                 var _type;
@@ -290,6 +288,10 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                  * Start recording
                  **/
                 function record() {
+                    if (_blobUrl) {
+                        $window.URL.revokeObjectURL(_blobUrl);
+                        _blobUrl = null;
+                    }
                     _recorder.startRecording();
                     _state = MEDIA_STATE.recording;
                     logState();
@@ -511,10 +513,8 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
         '$q',
         'SingleMedia',
         function mediaHandlerFactory($interval, $q, SingleMedia) {
-
             // constructor
             var MediaHandler = function () {
-
                 var mediaObjects = [];
 
                 /**
@@ -702,8 +702,6 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                         } else if (mediaObjects[0]) {
                             time = mediaObjects[0].currentTime;
                         }
-                        console.log('current Time', time);
-
                         return time;
                     },
                     set: function (value) {
@@ -763,7 +761,6 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
         'cxUA',
         'MediaHandler',
         function recorderControls($rootScope, cxUA, MediaHandler) {
-
             return {
                 restrict: 'A',
                 templateUrl: 'lib/ng.cx.recorder/ng.cx.recorder.tpl.html',
@@ -781,6 +778,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                     mediaRecordedHandler: '='
                 },
                 link: function ($scope, $element) {
+                    var messageNamespace = 'ng.cx.recorder';
 
                     function addMediaElements() {
                         if (cxUA.isFirefox) {
@@ -799,6 +797,18 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                                 $scope.mediaHandler.addMediaElement($scope.videoElement, $scope.videoUrl);
                             }
                         }
+                    }
+
+                    function getTimePercentage() {
+                        var value = 0;
+
+                        if ($scope.mediaHandler.state === MEDIA_STATE.recording) {
+                            value = ($scope.mediaHandler.duration * 100) / $scope.maxDuration;
+                        } else {
+                            value = ($scope.time.unformatted * 100) / $scope.mediaHandler.duration;
+                        }
+
+                        return Math.ceil(value);
                     }
 
                     $scope.MEDIA_STATE = MEDIA_STATE;
@@ -836,7 +846,8 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                     $scope.time = {
                         trackingEnabled: true,
                         unformatted: 0,
-                        formatted: new Date(null)
+                        formatted: new Date(null),
+                        percentage: 0
                     };
 
                     $scope.$watch('mediaHandler.currentTime', function (value) {
@@ -845,6 +856,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                         }
                         $scope.time.formatted = new Date(0);
                         $scope.time.formatted.setSeconds(value);
+                        $scope.time.percentage = getTimePercentage();
                     });
 
                     /**
@@ -854,27 +866,38 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                      *                         -----------
                      */
                     $scope.changeState = function () {
-                        switch ($scope.mediaHandler.state) {
-                        case MEDIA_STATE.capturing: // stopped -> record;
-                            $scope.mediaHandler.record();
-                            break;
-                        case MEDIA_STATE.recording: // record -> stop;
-                            $scope.mediaHandler.stop().then(function (media) {
-                                if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
-                                    $scope.mediaRecordedHandler(media);
-                                }
-                            });
-                            break;
-                        case MEDIA_STATE.paused: // stop -> play;
-                            $scope.mediaHandler.play();
-                            break;
-                        case MEDIA_STATE.stopped: // stop -> play;
-                            $scope.mediaHandler.play();
-                            break;
-                        case MEDIA_STATE.playing: // play -> pause;
-                            $scope.mediaHandler.pause();
-                            break;
+                        if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
+                            switch ($scope.mediaHandler.state) {
+                            case MEDIA_STATE.capturing: // stopped -> record;
+                                $scope.mediaHandler.record();
+                                break;
+                            case MEDIA_STATE.recording: // record -> stop;
+                                $scope.mediaHandler.stop().then(function (media) {
+                                    if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
+                                        $scope.mediaRecordedHandler(media);
+                                    }
+                                });
+                                break;
+                            case MEDIA_STATE.paused: // stop -> play;
+                                $scope.mediaHandler.play();
+                                break;
+                            case MEDIA_STATE.stopped: // stop -> play;
+                                $scope.mediaHandler.play();
+                                break;
+                            case MEDIA_STATE.playing: // play -> pause;
+                                $scope.mediaHandler.pause();
+                                break;
+                            }
                         }
+                    };
+
+                    /**
+                     * calls mediaHandler to remove recording and
+                     * sends a message: ng.cx.recorder.recordRemoved
+                     **/
+                    $scope.removeRecording = function () {
+                        $scope.mediaHandler.removeRecording();
+                        $scope.$emit(messageNamespace + '.recordRemoved');
                     };
 
                     /**
@@ -884,10 +907,8 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                         $scope.mediaHandler.stop();
                         $scope.mediaHandler.stopStream();
                     });
-
                 }
             };
         }
     ]);
-
 })(angular);

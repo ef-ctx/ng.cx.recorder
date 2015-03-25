@@ -1,5 +1,5 @@
 /**
- * ng.cx.recorder - v0.0.3 - 2015-03-23
+ * ng.cx.recorder - v0.0.4 - 2015-03-25
  * https://github.com/ef-ctx/ng.cx.recorder
  *
  * Copyright (c) 2015 EF CTX <http://ef.com>
@@ -95,6 +95,7 @@
 .recorder-controls .progress-bar {
   height: 100%;
   background-color: #4183c4;
+  transition: none;
 }
 .recorder-controls input[type="range"] {
   position: absolute;

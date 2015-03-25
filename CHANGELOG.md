@@ -1,3 +1,20 @@
+<a name="v0.0.4"></a>
+### v0.0.4 (2015-03-25)
+
+
+#### Bug Fixes
+
+* **chengeState:** ensuring state doesn't change if disabled ([1207e09e](git@github.com:ef-ctx/ng.cx.recorder/commit/1207e09e4b89e7f25a3eec4358557e9d6669bc5a))
+* **record:** clean blob before recording ([efba0216](git@github.com:ef-ctx/ng.cx.recorder/commit/efba0216320f0eecfa3bf03ddab96db697ee3f89))
+
+
+#### Features
+
+* **progressBar:**
+  * progress bar now follows the progress while playing ([ecef6b8e](git@github.com:ef-ctx/ng.cx.recorder/commit/ecef6b8e2554bdec67562246e836b43e9df8eac2))
+  * css transition removed ([6f7be164](git@github.com:ef-ctx/ng.cx.recorder/commit/6f7be16446c44d18e211dd7349b9ae8ea5ddf308))
+* **removeRecord:** $emit msg when deleting the record ([fed3f100](git@github.com:ef-ctx/ng.cx.recorder/commit/fed3f100b091b75d77a5bb988a5cd7a63259fc5f))
+
 <a name="v0.0.3"></a>
 ### v0.0.3 (2015-03-23)
 
