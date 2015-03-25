@@ -1,7 +1,6 @@
 /* globals RecordRTC:true */
 
 (function (angular) {
-
     'use strict';
 
     var module = angular.module('ng.cx.recorder', ['ng.cx.recorder.templates', 'ng.cx.ua']);
@@ -493,10 +492,8 @@
         '$q',
         'SingleMedia',
         function mediaHandlerFactory($interval, $q, SingleMedia) {
-
             // constructor
             var MediaHandler = function () {
-
                 var mediaObjects = [];
 
                 /**
@@ -684,8 +681,6 @@
                         } else if (mediaObjects[0]) {
                             time = mediaObjects[0].currentTime;
                         }
-                        console.log('current Time', time);
-
                         return time;
                     },
                     set: function (value) {
@@ -745,7 +740,6 @@
         'cxUA',
         'MediaHandler',
         function recorderControls($rootScope, cxUA, MediaHandler) {
-
             return {
                 restrict: 'A',
                 templateUrl: 'lib/ng.cx.recorder/ng.cx.recorder.tpl.html',
@@ -763,7 +757,6 @@
                     mediaRecordedHandler: '='
                 },
                 link: function ($scope, $element) {
-
                     function addMediaElements() {
                         if (cxUA.isFirefox) {
                             if (!!$scope.videoElement) {
@@ -781,6 +774,18 @@
                                 $scope.mediaHandler.addMediaElement($scope.videoElement, $scope.videoUrl);
                             }
                         }
+                    }
+
+                    function getTimePercentage() {
+                        var value = 0;
+
+                        if ($scope.mediaHandler.state === MEDIA_STATE.recording) {
+                            value = ($scope.mediaHandler.duration * 100) / $scope.maxDuration;
+                        } else {
+                            value = ($scope.time.unformatted * 100) / $scope.mediaHandler.duration;
+                        }
+
+                        return Math.ceil(value);
                     }
 
                     $scope.MEDIA_STATE = MEDIA_STATE;
@@ -818,7 +823,8 @@
                     $scope.time = {
                         trackingEnabled: true,
                         unformatted: 0,
-                        formatted: new Date(null)
+                        formatted: new Date(null),
+                        percentage: 0
                     };
 
                     $scope.$watch('mediaHandler.currentTime', function (value) {
@@ -827,6 +833,7 @@
                         }
                         $scope.time.formatted = new Date(0);
                         $scope.time.formatted.setSeconds(value);
+                        $scope.time.percentage = getTimePercentage();
                     });
 
                     /**
@@ -866,10 +873,8 @@
                         $scope.mediaHandler.stop();
                         $scope.mediaHandler.stopStream();
                     });
-
                 }
             };
         }
     ]);
-
 })(angular);

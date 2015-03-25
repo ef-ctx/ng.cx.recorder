@@ -17,7 +17,7 @@
 
     <div class="scrub-control">
         <div class="progress-bar-backdrop">
-            <div class="progress-bar" style="width: {{ (mediaHandler.state === MEDIA_STATE.recording)? (mediaHandler.duration * 100) / maxDuration : 100}}%"></div>
+            <div class="progress-bar" style="width: {{ time.percentage }}%"></div>
         </div>
         <input type="range"
             min="0"
@@ -35,6 +35,5 @@
         data-ng-show="((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))">
         <i class="recorder-controls-icon recorder-controls-icon-delete"></i>
     </div>
-
 
 </div>
