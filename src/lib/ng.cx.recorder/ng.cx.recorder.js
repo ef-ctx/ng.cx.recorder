@@ -757,6 +757,8 @@
                     mediaRecordedHandler: '='
                 },
                 link: function ($scope, $element) {
+                    var messageNamespace = 'ng.cx.recorder';
+
                     function addMediaElements() {
                         if (cxUA.isFirefox) {
                             if (!!$scope.videoElement) {
@@ -867,6 +869,15 @@
                             }
                         }
 
+                    };
+
+                    /**
+                     * calls mediaHandler to remove recording and
+                     * sends a message: ng.cx.recorder.recordRemoved
+                     **/
+                    $scope.removeRecording = function () {
+                        $scope.mediaHandler.removeRecording();
+                        $scope.$emit(messageNamespace + '.recordRemoved');
                     };
 
                     /**
