@@ -1,5 +1,4 @@
 <div class="recorder-controls {{ mediaHandler.state }}" data-ng-class="{'minified': minified}">
-
     <div class="button button-control" data-ng-click="changeState()">
         <i class="recorder-controls-icon" data-ng-class="{
             'recorder-controls-icon-disabled': (mediaHandler.state === MEDIA_STATE.disabled),
@@ -17,7 +16,7 @@
 
     <div class="scrub-control">
         <div class="progress-bar-backdrop">
-            <div class="progress-bar" style="width: {{ time.percentage }}%"></div>
+            <div class="progress-bar" style="width: {{ time.percentage || 0 }}%"></div>
         </div>
         <input type="range"
             min="0"
@@ -35,5 +34,4 @@
         data-ng-show="((mediaHandler.state !== MEDIA_STATE.disabled) && (mediaHandler.state !== MEDIA_STATE.capturing) && (mediaHandler.state !== MEDIA_STATE.recording))">
         <i class="recorder-controls-icon recorder-controls-icon-delete"></i>
     </div>
-
 </div>
