@@ -181,7 +181,6 @@
         '$window',
         'userMedia',
         function singleMediaFactory($rootScope, $q, $window, userMedia) {
-
             var SingleMedia = function (element, sourceUrl, multipleStreamCapturingSupported) {
                 // --------------------- PROPERTIES
                 var _type;
@@ -271,6 +270,10 @@
                  * Start recording
                  **/
                 function record() {
+                    if (_blobUrl) {
+                        $window.URL.revokeObjectURL(_blobUrl);
+                        _blobUrl = null;
+                    }
                     _recorder.startRecording();
                     _state = MEDIA_STATE.recording;
                     logState();
@@ -868,7 +871,6 @@
                                 break;
                             }
                         }
-
                     };
 
                     /**
