@@ -1,5 +1,5 @@
 /**
- * ng.cx.recorder - v0.0.5 - 2015-03-25
+ * ng.cx.recorder - v0.0.6 - 2015-10-09
  * https://github.com/ef-ctx/ng.cx.recorder
  *
  * Copyright (c) 2015 EF CTX <http://ef.com>

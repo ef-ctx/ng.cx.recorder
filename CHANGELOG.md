@@ -1,3 +1,12 @@
+<a name="v0.0.6"></a>
+### v0.0.6 (2015-10-09)
+
+
+#### Bug Fixes
+
+* change version of recordrtc ([03af1e5c](git@github.com:ef-ctx/ng.cx.recorder/commit/03af1e5c284c99b725a355b90dcf28b5b09dd538))
+* freeze version of recordrtc ([7432f47d](git@github.com:ef-ctx/ng.cx.recorder/commit/7432f47d6a93cb45e89361bc9a848abed471fee9))
+
 <a name="v0.0.5"></a>
 ### v0.0.5 (2015-03-25)
 
