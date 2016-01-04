@@ -829,8 +829,6 @@
                          *                         -----------
                          */
                         $scope.changeState = function () {
-                            $scope.mediaHandler.stop();
-                            $scope.mediaHandler.stopStream();
                             if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
                                 switch ($scope.mediaHandler.state) {
                                 case MEDIA_STATE.capturing: // stopped -> record;
