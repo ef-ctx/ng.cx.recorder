@@ -1,8 +1,8 @@
 /**
- * ng.cx.recorder - v0.0.6 - 2015-10-09
+ * ng.cx.recorder - v0.0.7 - 2016-01-04
  * https://github.com/ef-ctx/ng.cx.recorder
  *
- * Copyright (c) 2015 EF CTX <http://ef.com>
+ * Copyright (c) 2016 EF CTX <http://ef.com>
  * License: MIT <https://raw.githubusercontent.com/EFEducationFirstMobile/oss/master/LICENSE>
  */
 angular.module('ng.cx.recorder.templates', []).run(['$templateCache', function($templateCache) {
@@ -272,8 +272,15 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                  * Stop capturing
                  **/
                 function stopStream() {
+                    var tracks;
+
                     if (_stream) {
-                        _stream.stop();
+                        tracks = _stream.getTracks();
+
+                        for (var ix = 0; ix < tracks.length; ix++) {
+                            tracks[ix].stop();
+                        }
+
                         $window.URL.revokeObjectURL(_streamUrl);
                         logState();
                     }
@@ -840,6 +847,8 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                          *                         -----------
                          */
                         $scope.changeState = function () {
+                            $scope.mediaHandler.stop();
+                            $scope.mediaHandler.stopStream();
                             if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
                                 switch ($scope.mediaHandler.state) {
                                 case MEDIA_STATE.capturing: // stopped -> record;

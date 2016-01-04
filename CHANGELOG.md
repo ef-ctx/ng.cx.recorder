@@ -1,3 +1,11 @@
+<a name="v0.0.7"></a>
+### v0.0.7 (2016-01-04)
+
+
+#### Bug Fixes
+
+* **stop:** stream.stop deprecated fix. ([397ccf10](git@github.com:ef-ctx/ng.cx.recorder/commit/397ccf102ec3a43181548dcb9ed61968b0806c72))
+
 <a name="v0.0.6"></a>
 ### v0.0.6 (2015-10-09)
 
