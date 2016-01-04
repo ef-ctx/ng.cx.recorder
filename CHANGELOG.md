@@ -1,3 +1,11 @@
+<a name="v0.0.8"></a>
+### v0.0.8 (2016-01-04)
+
+
+#### Bug Fixes
+
+* **record:** state machine fixed ([b45583ba](git@github.com:ef-ctx/ng.cx.recorder/commit/b45583ba575b7f1c0b5dfc74d9031f8762cd193d))
+
 <a name="v0.0.7"></a>
 ### v0.0.7 (2016-01-04)
 

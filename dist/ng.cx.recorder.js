@@ -1,5 +1,5 @@
 /**
- * ng.cx.recorder - v0.0.7 - 2016-01-04
+ * ng.cx.recorder - v0.0.8 - 2016-01-04
  * https://github.com/ef-ctx/ng.cx.recorder
  *
  * Copyright (c) 2016 EF CTX <http://ef.com>
@@ -847,8 +847,6 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                          *                         -----------
                          */
                         $scope.changeState = function () {
-                            $scope.mediaHandler.stop();
-                            $scope.mediaHandler.stopStream();
                             if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
                                 switch ($scope.mediaHandler.state) {
                                 case MEDIA_STATE.capturing: // stopped -> record;
