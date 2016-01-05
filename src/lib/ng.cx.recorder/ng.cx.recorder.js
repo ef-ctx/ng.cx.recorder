@@ -207,6 +207,9 @@
                     //console.log(output);
                 }
 
+                function _createRecorder() {
+                    _recorder = new RecordRTC(_stream, _constraints.record);
+                }
                 /**
                  * @ngdoc function
                  * @name capture
@@ -236,7 +239,7 @@
                             _element.play();
                             _capturingEnabled = true;
                             _state = MEDIA_STATE.capturing;
-                            _recorder = new RecordRTC(stream.source, _constraints.record);
+                            _createRecorder();
                             logState();
                             dfd.resolve(stream);
                         });
@@ -281,6 +284,7 @@
                         $window.URL.revokeObjectURL(_blobUrl);
                         _blobUrl = null;
                     }
+                    _createRecorder();
                     _recorder.startRecording();
                     _state = MEDIA_STATE.recording;
                     logState();
