@@ -1,5 +1,5 @@
 /**
- * ng.cx.recorder - v0.0.8 - 2016-01-04
+ * ng.cx.recorder - v0.0.9 - 2016-01-06
  * https://github.com/ef-ctx/ng.cx.recorder
  *
  * Copyright (c) 2016 EF CTX <http://ef.com>
@@ -225,6 +225,9 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                     //console.log(output);
                 }
 
+                function _createRecorder() {
+                    _recorder = new RecordRTC(_stream, _constraints.record);
+                }
                 /**
                  * @ngdoc function
                  * @name capture
@@ -254,7 +257,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                             _element.play();
                             _capturingEnabled = true;
                             _state = MEDIA_STATE.capturing;
-                            _recorder = new RecordRTC(stream.source, _constraints.record);
+                            _createRecorder();
                             logState();
                             dfd.resolve(stream);
                         });
@@ -299,6 +302,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                         $window.URL.revokeObjectURL(_blobUrl);
                         _blobUrl = null;
                     }
+                    _createRecorder();
                     _recorder.startRecording();
                     _state = MEDIA_STATE.recording;
                     logState();

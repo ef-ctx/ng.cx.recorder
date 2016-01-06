@@ -1,3 +1,11 @@
+<a name="v0.0.9"></a>
+### v0.0.9 (2016-01-06)
+
+
+#### Bug Fixes
+
+* **recorder:** Recreates the recorder when starting a record. ([08b5fde6](git@github.com:ef-ctx/ng.cx.recorder/commit/08b5fde6e382665d62bd4b5b37fcea59ff0a437e))
+
 <a name="v0.0.8"></a>
 ### v0.0.8 (2016-01-04)
 
