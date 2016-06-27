@@ -12,6 +12,7 @@ Icon
 # trash
 npm-debug.log
 .sass-cache
+.idea/
 
 # dependencies
 /node_modules/
