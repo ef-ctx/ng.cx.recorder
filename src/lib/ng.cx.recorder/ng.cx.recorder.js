@@ -106,8 +106,8 @@
                 var dfd = $q.defer();
                 var stream;
 
-                if (!navigator.getMedia) {
-                    //console.log('capturing constraints ', constraints);
+                if (navigator.getUserMedia) {
+
                     getUserMedia.call(navigator, constraints, function (_stream) {
                         stream = {
                             source: _stream,
@@ -179,8 +179,9 @@
         '$rootScope',
         '$q',
         '$window',
+        '$timeout',
         'userMedia',
-        function singleMediaFactory($rootScope, $q, $window, userMedia) {
+        function singleMediaFactory($rootScope, $q, $window, $timeout, userMedia) {
             var SingleMedia = function (element, sourceUrl, multipleStreamCapturingSupported) {
                 // --------------------- PROPERTIES
                 var _type;
@@ -416,7 +417,7 @@
                             _element.src = sourceUrl;
                             _state = MEDIA_STATE.paused;
                         } else {
-                            capture();
+                            $timeout(capture, 10);
                         }
                     } else {
                         throw new Error('SingleMedia factory Error: type : ' + _type + ' is not supported as media element');
