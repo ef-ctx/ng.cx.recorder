@@ -691,15 +691,15 @@
 
                         var state = getState();
 
-                        if(state === MEDIA_STATE.capturing) {
+                        if (state === MEDIA_STATE.capturing) {
                             return 0;
                         }
 
-                        if(state === MEDIA_STATE.recording) {
+                        if (state === MEDIA_STATE.recording) {
                             return recordedTime;
                         }
 
-                        if(mediaObjects[0]) {
+                        if (mediaObjects[0]) {
                             return parseFloat(mediaObjects[0].currentTime.toFixed(1));
                         }
 
@@ -808,7 +808,7 @@
                                 isTracking = true;
                                 preTrackMediaState = $scope.mediaHandler.state;
 
-                                if(preTrackMediaState !== MEDIA_STATE.playing) {
+                                if (preTrackMediaState !== MEDIA_STATE.playing) {
                                     return;
                                 }
 
@@ -818,7 +818,7 @@
 
                                 isTracking = false;
 
-                                if(preTrackMediaState !== MEDIA_STATE.playing) {
+                                if (preTrackMediaState !== MEDIA_STATE.playing) {
                                     return;
                                 }
 
@@ -862,25 +862,25 @@
                         $scope.changeState = function () {
                             if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
                                 switch ($scope.mediaHandler.state) {
-                                    case MEDIA_STATE.capturing: // stopped -> record;
-                                        $scope.mediaHandler.record();
-                                        break;
-                                    case MEDIA_STATE.recording: // record -> stop;
-                                        $scope.mediaHandler.stop().then(function (media) {
-                                            if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
-                                                $scope.mediaRecordedHandler(media);
-                                            }
-                                        });
-                                        break;
-                                    case MEDIA_STATE.paused: // stop -> play;
-                                        $scope.mediaHandler.play();
-                                        break;
-                                    case MEDIA_STATE.stopped: // stop -> play;
-                                        $scope.mediaHandler.play();
-                                        break;
-                                    case MEDIA_STATE.playing: // play -> pause;
-                                        $scope.mediaHandler.pause();
-                                        break;
+                                case MEDIA_STATE.capturing: // stopped -> record;
+                                    $scope.mediaHandler.record();
+                                    break;
+                                case MEDIA_STATE.recording: // record -> stop;
+                                    $scope.mediaHandler.stop().then(function (media) {
+                                        if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
+                                            $scope.mediaRecordedHandler(media);
+                                        }
+                                    });
+                                    break;
+                                case MEDIA_STATE.paused: // stop -> play;
+                                    $scope.mediaHandler.play();
+                                    break;
+                                case MEDIA_STATE.stopped: // stop -> play;
+                                    $scope.mediaHandler.play();
+                                    break;
+                                case MEDIA_STATE.playing: // play -> pause;
+                                    $scope.mediaHandler.pause();
+                                    break;
                                 }
                             }
                         };
