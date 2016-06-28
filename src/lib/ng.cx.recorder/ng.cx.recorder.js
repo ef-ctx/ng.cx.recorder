@@ -540,7 +540,6 @@
                     mediaObjects.forEach(function (media) {
                         media.capture();
                     });
-
                 }
 
                 /**
@@ -689,13 +688,22 @@
 
                 Object.defineProperty(this, 'currentTime', {
                     get: function () {
-                        var time = 0;
-                        if (getState() === MEDIA_STATE.recording) {
-                            time = recordedTime;
-                        } else if (mediaObjects[0]) {
-                            time = mediaObjects[0].currentTime;
+
+                        var state = getState();
+
+                        if(state === MEDIA_STATE.capturing) {
+                            return 0;
                         }
-                        return time;
+
+                        if(state === MEDIA_STATE.recording) {
+                            return recordedTime;
+                        }
+
+                        if(mediaObjects[0]) {
+                            return parseFloat(mediaObjects[0].currentTime.toFixed(1));
+                        }
+
+                        return 0;
                     },
                     set: function (value) {
                         for (var ix = 0; ix < mediaObjects.length; ix++) {
@@ -774,7 +782,9 @@
                     '$scope',
                     function ($scope) {
 
-                        var messageNamespace = 'ng.cx.recorder';
+                        var messageNamespace = 'ng.cx.recorder',
+                            isTracking = false,
+                            preTrackMediaState;
 
                         function getTimePercentage() {
                             var value = 0;
@@ -782,10 +792,10 @@
                             if ($scope.mediaHandler.state === MEDIA_STATE.recording) {
                                 value = ($scope.mediaHandler.duration * 100) / $scope.maxDuration;
                             } else {
-                                value = ($scope.time.unformatted * 100) / $scope.mediaHandler.duration;
+                                value = ($scope.mediaHandler.currentTime * 100) / $scope.mediaHandler.duration;
                             }
 
-                            return Math.ceil(value);
+                            return Math.round(value);
                         }
 
                         $scope.MEDIA_STATE = MEDIA_STATE;
@@ -794,20 +804,33 @@
 
                         $scope.rangeHandlers = {
                             mouseDown: function () {
-                                $scope.time.trackingEnabled = false;
+
+                                isTracking = true;
+                                preTrackMediaState = $scope.mediaHandler.state;
+
+                                if(preTrackMediaState !== MEDIA_STATE.playing) {
+                                    return;
+                                }
+
                                 $scope.mediaHandler.pause();
                             },
                             mouseUp: function () {
-                                $scope.time.trackingEnabled = true;
+
+                                isTracking = false;
+
+                                if(preTrackMediaState !== MEDIA_STATE.playing) {
+                                    return;
+                                }
+
+                                $scope.mediaHandler.play();
                             },
                             change: function () {
+
                                 $scope.mediaHandler.currentTime = $scope.time.unformatted;
-                                $scope.mediaHandler.play();
                             }
                         };
 
                         $scope.time = {
-                            trackingEnabled: true,
                             unformatted: 0,
                             formatted: new Date(null),
                             percentage: 0
@@ -818,12 +841,16 @@
                         });
 
                         $scope.$watch('mediaHandler.currentTime', function (value) {
-                            if ($scope.time.trackingEnabled) {
-                                $scope.time.unformatted = value;
-                            }
+
                             $scope.time.formatted = new Date(0);
                             $scope.time.formatted.setSeconds(value);
                             $scope.time.percentage = getTimePercentage();
+
+                            if (isTracking) {
+                                return;
+                            }
+
+                            $scope.time.unformatted = value;
                         });
 
                         /**
@@ -835,25 +862,25 @@
                         $scope.changeState = function () {
                             if ($scope.mediaHandler.state !== MEDIA_STATE.disabled) {
                                 switch ($scope.mediaHandler.state) {
-                                case MEDIA_STATE.capturing: // stopped -> record;
-                                    $scope.mediaHandler.record();
-                                    break;
-                                case MEDIA_STATE.recording: // record -> stop;
-                                    $scope.mediaHandler.stop().then(function (media) {
-                                        if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
-                                            $scope.mediaRecordedHandler(media);
-                                        }
-                                    });
-                                    break;
-                                case MEDIA_STATE.paused: // stop -> play;
-                                    $scope.mediaHandler.play();
-                                    break;
-                                case MEDIA_STATE.stopped: // stop -> play;
-                                    $scope.mediaHandler.play();
-                                    break;
-                                case MEDIA_STATE.playing: // play -> pause;
-                                    $scope.mediaHandler.pause();
-                                    break;
+                                    case MEDIA_STATE.capturing: // stopped -> record;
+                                        $scope.mediaHandler.record();
+                                        break;
+                                    case MEDIA_STATE.recording: // record -> stop;
+                                        $scope.mediaHandler.stop().then(function (media) {
+                                            if ($scope.mediaRecordedHandler && angular.isFunction($scope.mediaRecordedHandler)) {
+                                                $scope.mediaRecordedHandler(media);
+                                            }
+                                        });
+                                        break;
+                                    case MEDIA_STATE.paused: // stop -> play;
+                                        $scope.mediaHandler.play();
+                                        break;
+                                    case MEDIA_STATE.stopped: // stop -> play;
+                                        $scope.mediaHandler.play();
+                                        break;
+                                    case MEDIA_STATE.playing: // play -> pause;
+                                        $scope.mediaHandler.pause();
+                                        break;
                                 }
                             }
                         };
