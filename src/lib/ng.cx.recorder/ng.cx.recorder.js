@@ -179,9 +179,8 @@
         '$rootScope',
         '$q',
         '$window',
-        '$timeout',
         'userMedia',
-        function singleMediaFactory($rootScope, $q, $window, $timeout, userMedia) {
+        function singleMediaFactory($rootScope, $q, $window, userMedia) {
             var SingleMedia = function (element, sourceUrl, multipleStreamCapturingSupported) {
                 // --------------------- PROPERTIES
                 var _type;
@@ -417,7 +416,7 @@
                             _element.src = sourceUrl;
                             _state = MEDIA_STATE.paused;
                         } else {
-                            $timeout(capture, 10);
+                            capture();
                         }
                     } else {
                         throw new Error('SingleMedia factory Error: type : ' + _type + ' is not supported as media element');
