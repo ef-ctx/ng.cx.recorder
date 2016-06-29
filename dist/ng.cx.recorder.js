@@ -1,5 +1,5 @@
 /**
- * ng.cx.recorder - v0.0.16 - 2016-06-28
+ * ng.cx.recorder - v0.0.16 - 2016-06-29
  * https://github.com/ef-ctx/ng.cx.recorder
  *
  * Copyright (c) 2016 EF CTX <http://ef.com>
@@ -127,6 +127,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                 if (navigator.getUserMedia) {
 
                     getUserMedia.call(navigator, constraints, function (_stream) {
+                        console.log(_stream);
                         stream = {
                             source: _stream,
                             url: $window.URL.createObjectURL(_stream)
@@ -134,6 +135,7 @@ $templateCache.put("lib/ng.cx.recorder/ng.cx.recorder.tpl.html",
                         dfd.resolve(stream);
                     }, function (error) {
                         //@todo handle user reject and etc.
+                        console.log(error);
                         dfd.reject(error);
                     });
                 } else {
