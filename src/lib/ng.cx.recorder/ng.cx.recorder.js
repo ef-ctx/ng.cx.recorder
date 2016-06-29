@@ -109,7 +109,6 @@
                 if (navigator.getUserMedia) {
 
                     getUserMedia.call(navigator, constraints, function (_stream) {
-                        console.log(_stream);
                         stream = {
                             source: _stream,
                             url: $window.URL.createObjectURL(_stream)
@@ -117,7 +116,6 @@
                         dfd.resolve(stream);
                     }, function (error) {
                         //@todo handle user reject and etc.
-                        console.log(error);
                         dfd.reject(error);
                     });
                 } else {
